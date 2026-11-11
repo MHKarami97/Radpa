@@ -43,7 +43,7 @@ public sealed class InterfaceClassifier
     private void RefreshAdaptersIfStale()
     {
         var now = Environment.TickCount64;
-        if (_indexCache.Count > 0 && now - Volatile.Read(ref _lastRefreshTicks) < 15_000)
+        if (!_indexCache.IsEmpty && now - Volatile.Read(ref _lastRefreshTicks) < 15_000)
         {
             return;
         }
