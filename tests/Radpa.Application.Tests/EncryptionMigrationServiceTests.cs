@@ -33,7 +33,11 @@ public sealed class EncryptionMigrationServiceTests
         var reports = new List<double>();
         var progress = new Progress<double>(v => reports.Add(v));
 
-        var result = await sut.MigrateAsync(new AppSettings { EncryptionEnabled = false }, enableEncryption: true, progress);
+        var result = await sut.MigrateAsync(
+            new AppSettings { EncryptionEnabled = false },
+            enableEncryption: true,
+            progress,
+            TestContext.Current.CancellationToken);
 
         result.EncryptionEnabled.Should().BeTrue();
         result.ProtectedEncryptionKeyBase64.Should().Be(Convert.ToBase64String(fakeKeyBlob));
@@ -68,7 +72,7 @@ public sealed class EncryptionMigrationServiceTests
 
         var sut = new EncryptionMigrationService(repo, encryption, store);
 
-        var act = async () => await sut.MigrateAsync(current, enableEncryption: false);
+        var act = async () => await sut.MigrateAsync(current, enableEncryption: false, cancellationToken: TestContext.Current.CancellationToken);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
         encryption.Received().Configure(true, Arg.Is<byte[]?>(b => b != null && b.SequenceEqual(originalBlob)));

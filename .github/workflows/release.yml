@@ -36,14 +36,33 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore, Build & Test
-        run: |
-          dotnet restore Radpa.sln
-          dotnet build Radpa.sln -c Release --no-restore -p:CI=true -p:Version=${{ steps.ver.outputs.semver }}
-          dotnet test tests/Radpa.Domain.Tests/Radpa.Domain.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
-          dotnet test tests/Radpa.Application.Tests/Radpa.Application.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
-          dotnet test tests/Radpa.Infrastructure.Tests/Radpa.Infrastructure.Tests.csproj -c Release --no-build
-          dotnet test tests/Radpa.UI.Tests/Radpa.UI.Tests.csproj -c Release --no-build
+      - name: Restore dependencies
+        run: dotnet restore Radpa.sln
+
+      - name: Verify formatting
+        run: dotnet format Radpa.sln --verify-no-changes --no-restore
+
+      - name: Build solution
+        run: dotnet build Radpa.sln -c Release --no-restore -p:CI=true -p:Version=${{ steps.ver.outputs.semver }}
+
+      - name: Run Domain unit tests with coverage
+        run: >
+          dotnet test tests/Radpa.Domain.Tests/Radpa.Domain.Tests.csproj -c Release --no-build
+          -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
+
+      - name: Run Application unit tests with coverage
+        run: >
+          dotnet test tests/Radpa.Application.Tests/Radpa.Application.Tests.csproj -c Release --no-build
+          -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
+
+      - name: Run Infrastructure & Windows live tests
+        run: dotnet test tests/Radpa.Infrastructure.Tests/Radpa.Infrastructure.Tests.csproj -c Release --no-build
+
+      - name: Run Avalonia Headless UI & RTL tests
+        run: dotnet test tests/Radpa.UI.Tests/Radpa.UI.Tests.csproj -c Release --no-build
+
+      - name: Run Risk Probe C RTL test
+        run: dotnet test tests/RiskProbes/ProbeC.RtlHeadless/ProbeC.RtlHeadless.csproj -c Release --no-build
 
       - name: Publish Single-File Binaries (win-x64 & win-arm64)
         shell: pwsh
@@ -52,7 +71,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           foreach ($rid in @('win-x64', 'win-arm64')) {
             dotnet publish src/Radpa.UI/Radpa.UI.csproj -c Release -r $rid -p:CI=true -p:Version=$v -o "out/$rid"
+            if ($LASTEXITCODE -ne 0) { throw "Publish Radpa.UI failed for $rid" }
             dotnet publish src/Radpa.NetCollector/Radpa.NetCollector.csproj -c Release -r $rid -p:CI=true -p:Version=$v -o "out/$rid"
+            if ($LASTEXITCODE -ne 0) { throw "Publish Radpa.NetCollector failed for $rid" }
             Move-Item "out/$rid/Radpa.exe" "dist/Radpa-$rid.exe"
             Move-Item "out/$rid/Radpa.NetCollector.exe" "dist/Radpa.NetCollector-$rid.exe"
           }
