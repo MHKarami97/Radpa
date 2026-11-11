@@ -16,7 +16,7 @@ public enum UiThemeMode
 
 public sealed record UpdateCheckOptions
 {
-    public string Repository { get; init; } = "radpa-app/radpa";
+    public string Repository { get; init; } = "MHKarami97/Radpa";
     public int IntervalHours { get; init; } = 24;
     public bool Enabled { get; init; } = true;
 }
