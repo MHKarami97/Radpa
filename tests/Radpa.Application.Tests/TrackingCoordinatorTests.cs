@@ -78,7 +78,7 @@ public sealed class TrackingCoordinatorTests
         var ruleMessages = new List<string>();
         coordinator.RuleAlertTriggered += (_, msg) => ruleMessages.Add(msg);
 
-        await coordinator.StartAsync(CancellationToken.None);
+        await coordinator.StartAsync(TestContext.Current.CancellationToken);
 
         // Advance 10 seconds and sample tick
         now = t0.AddSeconds(10);
@@ -87,7 +87,7 @@ public sealed class TrackingCoordinatorTests
         ], now);
 
         coordinator.ProcessTickForTests(now);
-        await coordinator.FlushNowAsync(CancellationToken.None);
+        await coordinator.FlushNowAsync(TestContext.Current.CancellationToken);
 
         savedBatch.Should().NotBeNull();
         savedBatch!.Sessions.Should().ContainSingle();
@@ -156,7 +156,7 @@ public sealed class TrackingCoordinatorTests
         var alerts = new List<AnomalyAlert>();
         coordinator.AnomalyDetected += (_, a) => alerts.Add(a);
 
-        await coordinator.StartAsync(CancellationToken.None);
+        await coordinator.StartAsync(TestContext.Current.CancellationToken);
 
         for (var i = 1; i <= 7; i++)
         {

@@ -30,15 +30,16 @@ public sealed class WindowsLiveCollectorTests
     [Fact]
     public async Task WindowsProcessMonitorEnumeratesRunningWindowsProcesses()
     {
+        var ct = TestContext.Current.CancellationToken;
         var logger = Substitute.For<IAppLogger>();
         await using var monitor = new WindowsProcessMonitor(new SystemClock(), logger);
-        await monitor.StartAsync(CancellationToken.None);
+        await monitor.StartAsync(ct);
 
         var procs = monitor.GetRunningProcesses();
         procs.Should().NotBeEmpty();
         procs.Should().Contain(p => p.ProcessId == Environment.ProcessId);
 
-        await monitor.StopAsync(CancellationToken.None);
+        await monitor.StopAsync(ct);
     }
 
     [Fact]

@@ -25,7 +25,8 @@ public sealed class UpdateCoordinatorTests
         var sut = new UpdateCoordinator(checker, clock, store, notify);
 
         var disabledSettings = new AppSettings { UpdateCheck = new UpdateCheckOptions { Enabled = false } };
-        var (resDisabled, _) = await sut.CheckIfDueAsync(disabledSettings, current, force: false, CancellationToken.None);
+        var ct = TestContext.Current.CancellationToken;
+        var (resDisabled, _) = await sut.CheckIfDueAsync(disabledSettings, current, force: false, ct);
         resDisabled.Status.Should().Be(UpdateCheckStatus.Disabled);
 
         var recentSettings = new AppSettings
@@ -34,10 +35,10 @@ public sealed class UpdateCoordinatorTests
             LastUpdateCheckUtc = t0.AddHours(-2),
             LastUpdateETag = "etag-1",
         };
-        var (resRecent, _) = await sut.CheckIfDueAsync(recentSettings, current, force: false, CancellationToken.None);
+        var (resRecent, _) = await sut.CheckIfDueAsync(recentSettings, current, force: false, ct);
         resRecent.Status.Should().Be(UpdateCheckStatus.NotModified);
 
-        await checker.DidNotReceiveWithAnyArgs().CheckAsync(default, null, CancellationToken.None);
+        await checker.DidNotReceiveWithAnyArgs().CheckAsync(default, null, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -56,7 +57,7 @@ public sealed class UpdateCoordinatorTests
                 UpdateCheckStatus.UpdateAvailable,
                 current,
                 next,
-                "https://github.com/radpa-app/radpa/releases/tag/v1.1.0",
+                "https://github.com/MHKarami97/Radpa/releases/tag/v1.1.0",
                 "Notes",
                 "etag-2",
                 null));
@@ -72,7 +73,7 @@ public sealed class UpdateCoordinatorTests
             LastUpdateCheckUtc = t0.AddHours(-25),
         };
 
-        var (res, updated) = await sut.CheckIfDueAsync(settings, current, force: false, CancellationToken.None);
+        var (res, updated) = await sut.CheckIfDueAsync(settings, current, force: false, TestContext.Current.CancellationToken);
         res.Status.Should().Be(UpdateCheckStatus.UpdateAvailable);
         updated.LastUpdateETag.Should().Be("etag-2");
         updated.LastUpdateCheckUtc.Should().Be(t0);
@@ -81,7 +82,7 @@ public sealed class UpdateCoordinatorTests
         // Skipped version must suppress notification even when forced
         notify.ClearReceivedCalls();
         var skippedSettings = updated with { SkippedUpdateVersion = "1.1.0" };
-        await sut.CheckIfDueAsync(skippedSettings, current, force: true, CancellationToken.None);
+        await sut.CheckIfDueAsync(skippedSettings, current, force: true, TestContext.Current.CancellationToken);
         notify.DidNotReceive().ShowNotification(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<NotificationSeverity>());
     }
 }

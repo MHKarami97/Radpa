@@ -122,7 +122,7 @@ public sealed class ApplicationCoverageTests
         var current = new AppSettings { EncryptionEnabled = false };
         var same = await mig.MigrateAsync(current, enableEncryption: false, cancellationToken: TestContext.Current.CancellationToken);
         same.Should().BeSameAs(current);
-        await repo.DidNotReceiveWithAnyArgs().GetAllSensitiveRowsAsync(CancellationToken.None);
+        await repo.DidNotReceiveWithAnyArgs().GetAllSensitiveRowsAsync(Arg.Any<CancellationToken>());
 
         var app = new AppAggregateStats(
             new AppKey("exe:a"),

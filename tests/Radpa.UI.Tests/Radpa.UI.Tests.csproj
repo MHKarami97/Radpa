@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Radpa.UI\Radpa.UI.csproj" />
+    <ProjectReference Include="..\..\src\Radpa.Infrastructure\Radpa.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Radpa.Application\Radpa.Application.csproj" />
     <ProjectReference Include="..\..\src\Radpa.Domain\Radpa.Domain.csproj" />
   </ItemGroup>

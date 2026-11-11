@@ -20,6 +20,7 @@ using Radpa.UI.Controls;
 using Radpa.UI.Localization;
 using Radpa.UI.ViewModels;
 using Radpa.UI.Views;
+using Xunit;
 
 namespace Radpa.UI.Tests;
 
@@ -45,7 +46,7 @@ public sealed class MainWindowUiTests : IDisposable
     [AvaloniaFact]
     public async Task MainWindowRendersAllTabsRtlAndMixedBidiDataGridCleanly()
     {
-        var (window, vm) = await CreateSeededMainWindowAsync();
+        var (window, vm) = await CreateSeededMainWindowAsync(TestContext.Current.CancellationToken);
 
         try
         {
@@ -60,6 +61,9 @@ public sealed class MainWindowUiTests : IDisposable
             dataGrid.Should().NotBeNull();
             dataGrid!.Columns[0].Header.Should().Be("برنامه");
 
+            var barCharts = window.GetVisualDescendants().OfType<HorizontalBarChartControl>().ToArray();
+            barCharts.Should().NotBeEmpty();
+
             // Navigate across all 5 views and ensure clean layout without XAML or binding failures
             for (var tab = 0; tab < 5; tab++)
             {
@@ -67,9 +71,6 @@ public sealed class MainWindowUiTests : IDisposable
                 window.UpdateLayout();
                 vm.SelectedTabIndex.Should().Be(tab);
             }
-
-            var barCharts = window.GetVisualDescendants().OfType<HorizontalBarChartControl>().ToArray();
-            barCharts.Should().NotBeEmpty();
         }
         finally
         {
@@ -80,7 +81,7 @@ public sealed class MainWindowUiTests : IDisposable
     [AvaloniaFact]
     public async Task SwitchingLanguageAndThemeUpdatesFlowDirectionColumnHeadersAndThemeVariant()
     {
-        var (window, vm) = await CreateSeededMainWindowAsync();
+        var (window, vm) = await CreateSeededMainWindowAsync(TestContext.Current.CancellationToken);
 
         try
         {
@@ -90,7 +91,7 @@ public sealed class MainWindowUiTests : IDisposable
 
             var dataGrid = window.GetVisualDescendants().OfType<DataGrid>().First(g => g.Name == "AppsDataGrid");
             dataGrid.Columns[0].Header.Should().Be("برنامه");
-            vm.Dashboard.Rows[0].GpuText.Should().Be("نامشخص");
+            vm.Dashboard.Rows[0].GpuText.Should().Be("ناموجود");
 
             vm.Settings.IsPersianLanguage = false;
             vm.Settings.IsDarkTheme = false;
@@ -155,14 +156,14 @@ public sealed class MainWindowUiTests : IDisposable
         w.Close();
     }
 
-    private async Task<(MainWindow Window, MainWindowViewModel ViewModel)> CreateSeededMainWindowAsync()
+    private async Task<(MainWindow Window, MainWindowViewModel ViewModel)> CreateSeededMainWindowAsync(CancellationToken ct)
     {
         var dbPath = Path.Combine(_tempDir, "ui-test.db");
         var settingsPath = Path.Combine(_tempDir, "settings.json");
         var repo = new SqliteUsageRepository(dbPath);
-        await repo.InitializeAsync(CancellationToken.None);
+        await repo.InitializeAsync(ct);
 
-        var nowUtc = DateTimeOffset.UtcNow;
+        var nowUtc = new DateTimeOffset(2026, 11, 10, 12, 0, 0, TimeSpan.Zero);
         var chromeKey = new AppKey("group:Google Chrome");
         var radpaTestKey = new AppKey("exe:persian-tool");
 
@@ -182,7 +183,7 @@ public sealed class MainWindowUiTests : IDisposable
             [
                 new NetworkSample(chromeKey, nowUtc.AddMinutes(-6), "Wi-Fi", NetworkInterfaceKind.WiFi, NetworkProtocol.Tcp, "1.1.1.1", "one.one.one.one", 10_000, 50_000),
             ]),
-            CancellationToken.None);
+            ct);
 
         var store = new JsonSettingsStore(settingsPath);
         var settings = new AppSettings
@@ -191,20 +192,20 @@ public sealed class MainWindowUiTests : IDisposable
             Theme = UiThemeMode.Dark,
             UsePersianDigits = true,
         };
-        await store.SaveAsync(settings, CancellationToken.None);
+        await store.SaveAsync(settings, ct);
 
         var clock = Substitute.For<IClock>();
         clock.UtcNow.Returns(nowUtc);
-        clock.LocalNow.Returns(nowUtc.ToLocalTime());
+        clock.LocalNow.Returns(nowUtc);
 
         var loc = new Localizer { Language = settings.Language };
         var encryption = new AesGcmEncryptionService(new DpapiKeyProtector());
         var query = new DashboardQueryService(repo, encryption);
         var dashboardVm = new DashboardViewModel(query, clock, loc);
         var privacyVm = new PrivacyAuditorViewModel(loc);
-        var insightsVm = new InsightsViewModel(query, clock, loc, settings, async s => await store.SaveAsync(s, CancellationToken.None));
+        var insightsVm = new InsightsViewModel(query, clock, loc, settings, async s => await store.SaveAsync(s, ct));
         var focusManager = new FocusSessionManager(clock, Substitute.For<INotificationService>());
-        var focusVm = new FocusAndProjectsViewModel(focusManager, loc, settings, async s => await store.SaveAsync(s, CancellationToken.None));
+        var focusVm = new FocusAndProjectsViewModel(focusManager, loc, settings, async s => await store.SaveAsync(s, ct));
 
         var migration = new EncryptionMigrationService(repo, encryption, store);
         var startup = Substitute.For<IStartupRegistrationService>();

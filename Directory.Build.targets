@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup Condition="'$(IsTrimmable)' == '' and '$(IsTestProject)' != 'true'">
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsAotCompatible)' == '' and '$(IsTestProject)' != 'true'">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+</Project>

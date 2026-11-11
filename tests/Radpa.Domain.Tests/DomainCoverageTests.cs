@@ -16,6 +16,7 @@ public sealed class DomainCoverageTests
         last7.Duration.Should().Be(TimeSpan.FromDays(7));
         last7.Contains(now.AddDays(-1)).Should().BeTrue();
         last7.Contains(now.AddDays(-8)).Should().BeFalse();
+        TimeRange.Today(now).Contains(now.AddMinutes(-5)).Should().BeTrue();
 
         var disjoint = new TimeRange(now.AddDays(1), now.AddDays(2));
         last7.Intersect(disjoint).Should().BeNull();
@@ -57,12 +58,15 @@ public sealed class DomainCoverageTests
         bGrade.Grade.Should().Be("B");
         cGrade.Grade.Should().Be("C");
         dGrade.Grade.Should().Be("D");
+        var fGrade = new AppHealthScore(20, 20, 20, 20, "Health.Critical");
+        fGrade.Grade.Should().Be("F");
     }
 
     [Fact]
     public void SemanticVersionHandlesMinorPatchDiffsAndPrereleasePrecedenceOperators()
     {
         SemanticVersion.TryParse("1.2.3", out var v123).Should().BeTrue();
+        SemanticVersion.TryParse("1.2.3", out var v123Same).Should().BeTrue();
         SemanticVersion.TryParse("1.3.0", out var v130).Should().BeTrue();
         SemanticVersion.TryParse("2.0.0", out var v200).Should().BeTrue();
         SemanticVersion.TryParse("1.2.3-alpha", out var alpha).Should().BeTrue();
@@ -72,7 +76,9 @@ public sealed class DomainCoverageTests
         (v130 > v123).Should().BeTrue();
         (v200 >= v130).Should().BeTrue();
         (v123 <= alpha1).Should().BeFalse();
-        (v123 <= v123).Should().BeTrue();
+        (v123 <= v123Same).Should().BeTrue();
+        (v123 == v123Same).Should().BeTrue();
+        (v123 != v130).Should().BeTrue();
         (alpha1 < alphaBeta).Should().BeTrue();
         (alphaBeta > alpha1).Should().BeTrue();
         v123.ToString().Should().Be("1.2.3");

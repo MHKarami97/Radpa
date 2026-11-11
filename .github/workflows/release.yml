@@ -39,11 +39,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Radpa.sln
 
-      - name: Verify formatting
-        run: dotnet format Radpa.sln --verify-no-changes --no-restore
-
       - name: Build solution
         run: dotnet build Radpa.sln -c Release --no-restore -p:CI=true -p:Version=${{ steps.ver.outputs.semver }}
+
+      - name: Verify formatting
+        run: dotnet format Radpa.sln --verify-no-changes --no-restore
 
       - name: Run Domain unit tests with coverage
         run: >

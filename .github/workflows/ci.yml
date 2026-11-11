@@ -30,11 +30,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Radpa.sln
 
-      - name: Verify formatting
-        run: dotnet format Radpa.sln --verify-no-changes --no-restore
-
       - name: Build solution (Release, warnings as errors)
         run: dotnet build Radpa.sln -c Release --no-restore -p:CI=true
+
+      - name: Verify formatting
+        run: dotnet format Radpa.sln --verify-no-changes --no-restore
 
       - name: Check for vulnerable NuGet packages
         run: dotnet list Radpa.sln package --vulnerable --include-transitive

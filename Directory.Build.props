@@ -21,11 +21,6 @@
     <NeutralLanguage>fa-IR</NeutralLanguage>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
-    <IsTrimmable>true</IsTrimmable>
-    <IsAotCompatible>true</IsAotCompatible>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(SkipAnalyzers)' != 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" PrivateAssets="all" />
     <PackageReference Include="Roslynator.Analyzers" PrivateAssets="all" />

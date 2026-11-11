@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Media;
@@ -45,9 +46,9 @@ public sealed class RtlTests
                 new RowItem("وی‌اس‌کد (Code.exe)", "۴.۲٪", "140.82.121.4"),
             },
         };
-        grid.Columns.Add(new DataGridTextColumn { Header = "برنامه", Binding = new Avalonia.Data.Binding("Name") });
-        grid.Columns.Add(new DataGridTextColumn { Header = "پردازنده", Binding = new Avalonia.Data.Binding("Cpu") });
-        grid.Columns.Add(new DataGridTextColumn { Header = "مقصد", Binding = new Avalonia.Data.Binding("Endpoint") });
+        grid.Columns.Add(MakeColumn("برنامه", static r => r.Name));
+        grid.Columns.Add(MakeColumn("پردازنده", static r => r.Cpu));
+        grid.Columns.Add(MakeColumn("مقصد", static r => r.Endpoint));
 
         var root = new StackPanel { FlowDirection = FlowDirection.RightToLeft, Children = { panel, grid } };
         ToolTip.SetTip(panel, "جزئیات: ارسال 12.4 MB به github.com");
@@ -67,6 +68,13 @@ public sealed class RtlTests
         panel.Bounds.Width.Should().BeGreaterThan(0);
         grid.Bounds.Height.Should().Be(200);
     }
+
+    private static DataGridTemplateColumn MakeColumn(string header, Func<RowItem, string> selector) =>
+        new()
+        {
+            Header = header,
+            CellTemplate = new FuncDataTemplate<RowItem>((row, _) => new TextBlock { Text = selector(row) }),
+        };
 
     private sealed record RowItem(string Name, string Cpu, string Endpoint);
 }

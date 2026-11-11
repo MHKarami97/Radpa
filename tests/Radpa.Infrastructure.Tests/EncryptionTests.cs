@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using FluentAssertions;
-using NSubstitute;
 using Radpa.Application.Abstractions;
 using Radpa.Infrastructure.Security;
 using Xunit;
@@ -37,15 +36,12 @@ public sealed class EncryptionTests
     [Fact]
     public void AesGcmDecryptionWithWrongKeyThrowsCryptographicException()
     {
-        var protector = Substitute.For<IKeyProtector>();
         byte[] keyA = new byte[32];
         byte[] keyB = new byte[32];
         RandomNumberGenerator.Fill(keyA);
         RandomNumberGenerator.Fill(keyB);
 
-        protector.Protect(Arg.Any<ReadOnlySpan<byte>>()).Returns(ci => ci.Arg<ReadOnlySpan<byte>>().ToArray());
-        protector.Unprotect(Arg.Is<ReadOnlySpan<byte>>(b => b.SequenceEqual(keyA))).Returns(keyA);
-        protector.Unprotect(Arg.Is<ReadOnlySpan<byte>>(b => b.SequenceEqual(keyB))).Returns(keyB);
+        var protector = new StubKeyProtector();
 
         var s1 = new AesGcmEncryptionService(protector);
         s1.Configure(true, keyA);
@@ -56,5 +52,12 @@ public sealed class EncryptionTests
 
         var act = () => s2.DecryptField(encrypted);
         act.Should().Throw<CryptographicException>();
+    }
+
+    private sealed class StubKeyProtector : IKeyProtector
+    {
+        public byte[] Protect(ReadOnlySpan<byte> plaintext) => plaintext.ToArray();
+
+        public byte[] Unprotect(ReadOnlySpan<byte> protectedData) => protectedData.ToArray();
     }
 }

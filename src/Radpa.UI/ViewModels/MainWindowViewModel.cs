@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using Avalonia.Media;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -75,7 +76,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void NavigateTo(string indexStr)
     {
-        if (int.TryParse(indexStr, out var idx))
+        if (int.TryParse(indexStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var idx))
         {
             SelectedTabIndex = idx;
         }

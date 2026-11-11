@@ -28,10 +28,11 @@ public sealed class SettingsAndLoggingTests : IDisposable
     [Fact]
     public async Task JsonSettingsStoreLoadsDefaultsWhenMissingAndRoundTripsAotJson()
     {
+        var ct = TestContext.Current.CancellationToken;
         var path = Path.Combine(_tempDir, "settings.json");
         var store = new JsonSettingsStore(path);
 
-        var defaults = await store.LoadAsync(CancellationToken.None);
+        var defaults = await store.LoadAsync(ct);
         defaults.Language.Should().Be(UiLanguage.Persian);
         defaults.RecordWindowTitles.Should().BeFalse();
 
@@ -43,16 +44,16 @@ public sealed class SettingsAndLoggingTests : IDisposable
             ProjectRules = [new ProjectTagRule("p1", "Radpa", ProjectMatchKind.ProcessName, "Code")],
         };
 
-        await store.SaveAsync(custom, CancellationToken.None);
-        var loaded = await store.LoadAsync(CancellationToken.None);
+        await store.SaveAsync(custom, ct);
+        var loaded = await store.LoadAsync(ct);
         loaded.Language.Should().Be(UiLanguage.English);
         loaded.Theme.Should().Be(UiThemeMode.Light);
         loaded.RetentionDays.Should().Be(30);
         loaded.ProjectRules.Should().ContainSingle().Which.ProjectName.Should().Be("Radpa");
 
         // Corrupt JSON falls back cleanly to defaults
-        await File.WriteAllTextAsync(path, "{ invalid json");
-        var fallback = await store.LoadAsync(CancellationToken.None);
+        await File.WriteAllTextAsync(path, "{ invalid json", ct);
+        var fallback = await store.LoadAsync(ct);
         fallback.Language.Should().Be(UiLanguage.Persian);
     }
 

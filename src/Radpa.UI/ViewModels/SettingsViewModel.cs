@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Radpa.Application.Abstractions;
@@ -269,8 +270,8 @@ public sealed partial class SettingsViewModel : ObservableObject
             await _repository.VacuumAsync(CancellationToken.None);
             await RefreshStorageSizeAsync(CancellationToken.None);
             StatusMessage = Loc.IsPersian
-                ? $"پاک‌سازی انجام شد ({deleted} ردیف قدیمی حذف و پایگاه داده بهینه‌سازی شد)."
-                : $"Compacted database ({deleted} expired rows removed).";
+                ? $"پاک‌سازی انجام شد ({NumberFormatter.FormatInteger(deleted, UsePersianDigits)} ردیف قدیمی حذف و پایگاه داده بهینه‌سازی شد)."
+                : $"Compacted database ({NumberFormatter.FormatInteger(deleted, UsePersianDigits)} expired rows removed).";
         }
         finally
         {
@@ -305,7 +306,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 
         var dir = Path.Combine(StoragePathResolver.ResolveDataDirectory(PortableMode), "Exports");
         Directory.CreateDirectory(dir);
-        var path = Path.Combine(dir, $"radpa-report-{DateTime.Now:yyyyMMdd-HHmmss}.{ext}");
+        var path = Path.Combine(dir, $"radpa-report-{DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}.{ext}");
         await File.WriteAllTextAsync(path, formatter(snap));
         StatusMessage = Loc.IsPersian ? $"خروجی ذخیره شد: {path}" : $"Exported: {path}";
     }

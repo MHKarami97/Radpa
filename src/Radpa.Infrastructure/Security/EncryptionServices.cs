@@ -120,7 +120,7 @@ public sealed class AesGcmEncryptionService : IEncryptionService
             return "[Encrypted]";
         }
 
-        var payload = Convert.FromBase64String(ciphertext.AsSpan(Prefix.Length));
+        var payload = Convert.FromBase64String(ciphertext[Prefix.Length..]);
         if (payload.Length < NonceSize + TagSize)
         {
             throw new CryptographicException("Invalid encrypted payload length.");

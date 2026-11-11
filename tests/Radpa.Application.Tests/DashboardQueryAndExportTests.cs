@@ -54,7 +54,7 @@ public sealed class DashboardQueryAndExportTests
         encryption.DecryptField(Arg.Any<string?>()).Returns(ci => ci.Arg<string?>());
 
         var query = new DashboardQueryService(repo, encryption);
-        var snapshot = await query.QueryAsync(range, CancellationToken.None);
+        var snapshot = await query.QueryAsync(range, TestContext.Current.CancellationToken);
 
         snapshot.Apps.Should().HaveCount(2);
         snapshot.Apps[0].DisplayName.Should().Be("Visual Studio Code");
@@ -106,7 +106,7 @@ public sealed class DashboardQueryAndExportTests
         var encryption = Substitute.For<IEncryptionService>();
         var service = new DashboardQueryService(repo, encryption);
 
-        var cmp = await service.ComparePeriodsAsync(before, after, CancellationToken.None);
+        var cmp = await service.ComparePeriodsAsync(before, after, TestContext.Current.CancellationToken);
         cmp.Should().ContainSingle();
         cmp[0].ActiveDelta.Should().Be(TimeSpan.FromSeconds(600));
     }

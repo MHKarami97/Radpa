@@ -1,5 +1,5 @@
-using Microsoft.Data.Sqlite;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
 using Radpa.Application.Abstractions;
 using Radpa.Domain.Entities;
 using Radpa.Domain.ValueObjects;
@@ -32,10 +32,11 @@ public sealed class SqliteRepositoryTests : IDisposable
     [Fact]
     public async Task RepositoryPersistsQueriesUpdatesRetentionDeletesAndVacuumsInWalMode()
     {
+        var ct = TestContext.Current.CancellationToken;
         var repo = new SqliteUsageRepository(_dbPath);
-        await repo.InitializeAsync(CancellationToken.None);
+        await repo.InitializeAsync(ct);
         // Second call verifies idempotent migration
-        await repo.InitializeAsync(CancellationToken.None);
+        await repo.InitializeAsync(ct);
 
         var t0 = new DateTimeOffset(2026, 11, 1, 10, 0, 0, TimeSpan.Zero);
         var chromeKey = new AppKey("group:Google Chrome");
@@ -58,27 +59,27 @@ public sealed class SqliteRepositoryTests : IDisposable
                 new NetworkSample(chromeKey, t0.AddMinutes(5), "Wi-Fi", NetworkInterfaceKind.WiFi, NetworkProtocol.Tcp, "1.1.1.1", "one.one.one.one", 512, 4096),
             ]);
 
-        await repo.SaveBatchAsync(batch, CancellationToken.None);
+        await repo.SaveBatchAsync(batch, ct);
 
         var fullRange = new TimeRange(t0.AddDays(-1), t0.AddDays(10));
-        var apps = await repo.GetAllAppsAsync(CancellationToken.None);
+        var apps = await repo.GetAllAppsAsync(ct);
         apps.Should().HaveCount(2);
 
-        var sessions = await repo.QuerySessionsAsync(fullRange, CancellationToken.None);
+        var sessions = await repo.QuerySessionsAsync(fullRange, ct);
         sessions.Should().HaveCount(2);
 
-        var resources = await repo.QueryResourceSamplesAsync(fullRange, CancellationToken.None);
+        var resources = await repo.QueryResourceSamplesAsync(fullRange, ct);
         resources.Should().HaveCount(2);
         resources[0].GpuPercent.Should().BeNull();
         resources[1].GpuPercent.Should().Be(12.0);
 
-        var nets = await repo.QueryNetworkSamplesAsync(fullRange, CancellationToken.None);
+        var nets = await repo.QueryNetworkSamplesAsync(fullRange, ct);
         nets.Should().ContainSingle();
         nets[0].BytesSent.Should().Be(512);
         nets[0].BytesReceived.Should().Be(4096);
 
         // Encrypt sensitive rows via UpdateSensitiveRowsAsync
-        var sensitive = await repo.GetAllSensitiveRowsAsync(CancellationToken.None);
+        var sensitive = await repo.GetAllSensitiveRowsAsync(ct);
         sensitive.Should().HaveCount(2);
         var updated = sensitive.Select(r => r with
         {
@@ -87,29 +88,29 @@ public sealed class SqliteRepositoryTests : IDisposable
             RemoteDomain = r.RemoteDomain is null ? null : $"ENC1:{r.RemoteDomain}",
         }).ToArray();
 
-        await repo.UpdateSensitiveRowsAsync(updated, CancellationToken.None);
+        await repo.UpdateSensitiveRowsAsync(updated, ct);
 
-        var updatedNets = await repo.QueryNetworkSamplesAsync(fullRange, CancellationToken.None);
+        var updatedNets = await repo.QueryNetworkSamplesAsync(fullRange, ct);
         updatedNets[0].RemoteIp.Should().StartWith("ENC1:");
 
         // Retention removes old records (t0) while keeping newer records (t0 + 5d)
-        var deletedCount = await repo.ApplyRetentionAsync(t0.AddDays(2), CancellationToken.None);
+        var deletedCount = await repo.ApplyRetentionAsync(t0.AddDays(2), ct);
         deletedCount.Should().BeGreaterThanOrEqualTo(3);
 
-        var afterRetentionSessions = await repo.QuerySessionsAsync(fullRange, CancellationToken.None);
+        var afterRetentionSessions = await repo.QuerySessionsAsync(fullRange, ct);
         afterRetentionSessions.Should().ContainSingle().Which.AppKey.Should().Be(codeKey);
 
         // DeleteAppData removes codeKey via CASCADE
-        await repo.DeleteAppDataAsync(codeKey, CancellationToken.None);
-        (await repo.QuerySessionsAsync(fullRange, CancellationToken.None)).Should().BeEmpty();
+        await repo.DeleteAppDataAsync(codeKey, ct);
+        (await repo.QuerySessionsAsync(fullRange, ct)).Should().BeEmpty();
 
         // Save again then DeleteAllData + Vacuum + Size
-        await repo.SaveBatchAsync(batch, CancellationToken.None);
-        var dbSizeBefore = await repo.GetDatabaseSizeBytesAsync(CancellationToken.None);
+        await repo.SaveBatchAsync(batch, ct);
+        var dbSizeBefore = await repo.GetDatabaseSizeBytesAsync(ct);
         dbSizeBefore.Should().BeGreaterThan(0);
 
-        await repo.DeleteAllDataAsync(CancellationToken.None);
-        (await repo.GetAllAppsAsync(CancellationToken.None)).Should().BeEmpty();
-        await repo.VacuumAsync(CancellationToken.None);
+        await repo.DeleteAllDataAsync(ct);
+        (await repo.GetAllAppsAsync(ct)).Should().BeEmpty();
+        await repo.VacuumAsync(ct);
     }
 }

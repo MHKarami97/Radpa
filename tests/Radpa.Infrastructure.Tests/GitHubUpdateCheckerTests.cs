@@ -23,7 +23,7 @@ public sealed class GitHubUpdateCheckerTests
 
         var handler = new FakeHttpHandler();
         using var http = new HttpClient(handler);
-        var checker = new GitHubUpdateChecker(http, new UpdateCheckOptions { Enabled = true, Repository = "radpa-app/radpa" }, clock);
+        var checker = new GitHubUpdateChecker(http, new UpdateCheckOptions { Enabled = true, Repository = "MHKarami97/Radpa" }, clock);
         var current = new SemanticVersion(1, 0, 0);
 
         // 1. 200 OK with newer release and ETag
@@ -31,13 +31,14 @@ public sealed class GitHubUpdateCheckerTests
         {
             var resp = new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent("""{"tag_name":"v1.2.0","html_url":"https://github.com/radpa-app/radpa/releases/tag/v1.2.0","body":"Changes","draft":false,"prerelease":false}""", Encoding.UTF8, "application/json"),
+                Content = new StringContent("""{"tag_name":"v1.2.0","html_url":"https://github.com/MHKarami97/Radpa/releases/tag/v1.2.0","body":"Changes","draft":false,"prerelease":false}""", Encoding.UTF8, "application/json"),
             };
             resp.Headers.ETag = new EntityTagHeaderValue("\"abc\"");
             return resp;
         };
 
-        var res1 = await checker.CheckAsync(current, null, CancellationToken.None);
+        var ct = TestContext.Current.CancellationToken;
+        var res1 = await checker.CheckAsync(current, null, ct);
         res1.Status.Should().Be(UpdateCheckStatus.UpdateAvailable);
         res1.LatestVersion.Should().Be(new SemanticVersion(1, 2, 0));
         res1.ETag.Should().Be("\"abc\"");
@@ -46,7 +47,7 @@ public sealed class GitHubUpdateCheckerTests
 
         // 2. 304 Not Modified sends If-None-Match
         handler.NextResponse = _ => new HttpResponseMessage(HttpStatusCode.NotModified);
-        var res2 = await checker.CheckAsync(current, "\"abc\"", CancellationToken.None);
+        var res2 = await checker.CheckAsync(current, "\"abc\"", ct);
         res2.Status.Should().Be(UpdateCheckStatus.NotModified);
         handler.LastRequest!.Headers.IfNoneMatch.ToString().Should().Contain("\"abc\"");
 
@@ -59,12 +60,12 @@ public sealed class GitHubUpdateCheckerTests
         };
 
         var callsBefore = handler.CallCount;
-        var res3 = await checker.CheckAsync(current, "\"abc\"", CancellationToken.None);
+        var res3 = await checker.CheckAsync(current, "\"abc\"", ct);
         res3.Status.Should().Be(UpdateCheckStatus.RateLimited);
         res3.RetryAfterUtc.Should().BeCloseTo(t0.AddMinutes(10), TimeSpan.FromSeconds(1));
 
         // 4. Subsequent check within backoff does not hit network
-        var res4 = await checker.CheckAsync(current, "\"abc\"", CancellationToken.None);
+        var res4 = await checker.CheckAsync(current, "\"abc\"", ct);
         res4.Status.Should().Be(UpdateCheckStatus.RateLimited);
         handler.CallCount.Should().Be(callsBefore + 1);
     }
@@ -80,9 +81,9 @@ public sealed class GitHubUpdateCheckerTests
             NextResponse = _ => throw new HttpRequestException("Network unreachable"),
         };
         using var http = new HttpClient(handler);
-        var checker = new GitHubUpdateChecker(http, new UpdateCheckOptions { Enabled = true, Repository = "radpa-app/radpa" }, clock);
+        var checker = new GitHubUpdateChecker(http, new UpdateCheckOptions { Enabled = true, Repository = "MHKarami97/Radpa" }, clock);
 
-        var res = await checker.CheckAsync(new SemanticVersion(1, 0, 0), null, CancellationToken.None);
+        var res = await checker.CheckAsync(new SemanticVersion(1, 0, 0), null, TestContext.Current.CancellationToken);
         res.Status.Should().Be(UpdateCheckStatus.OfflineOrFailed);
         res.ErrorMessage.Should().Contain("Network unreachable");
     }
