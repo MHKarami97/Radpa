@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Radpa.Domain</RootNamespace>
+    <AssemblyName>Radpa.Domain</AssemblyName>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="Radpa" preserve="all" />
+  <assembly fullname="Avalonia.Controls.DataGrid" preserve="all" />
+  <assembly fullname="Avalonia.Themes.Fluent" preserve="all" />
+</linker>

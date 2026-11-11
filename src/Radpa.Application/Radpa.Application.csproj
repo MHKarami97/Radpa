@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Radpa.Application</RootNamespace>
+    <AssemblyName>Radpa.Application</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Radpa.Domain\Radpa.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Radpa.Application.Tests" />
+    <InternalsVisibleTo Include="Radpa.Benchmarks" />
+  </ItemGroup>
+</Project>

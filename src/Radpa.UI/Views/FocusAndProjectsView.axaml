@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Radpa.UI.ViewModels"
+             xmlns:dom="using:Radpa.Domain.Entities"
+             x:Class="Radpa.UI.Views.FocusAndProjectsView"
+             x:DataType="vm:FocusAndProjectsViewModel"
+             x:CompileBindings="True">
+  <ScrollViewer>
+    <StackPanel Spacing="16" Margin="16">
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="10">
+          <TextBlock Text="{Binding Loc.FocusTimerTitle}" FontSize="17" FontWeight="Bold" />
+          <WrapPanel Orientation="Horizontal" ItemSpacing="10" LineSpacing="8">
+            <TextBlock Text="{Binding Loc.FocusMinutes}" VerticalAlignment="Center" />
+            <NumericUpDown Width="110" Minimum="1" Maximum="240" Value="{Binding FocusMinutes}" />
+            <TextBox Width="280" Watermark="{Binding Loc.FocusDistractingApps}" Text="{Binding DistractingAppsText}" />
+            <Button Content="{Binding Loc.FocusStart}" Command="{Binding StartFocusCommand}" IsEnabled="{Binding !IsFocusRunning}" Background="{DynamicResource AccentBrush}" Foreground="#0F172A" FontWeight="Bold" />
+            <Button Content="{Binding Loc.FocusStop}" Command="{Binding StopFocusCommand}" IsEnabled="{Binding IsFocusRunning}" />
+          </WrapPanel>
+          <TextBlock Text="{Binding LiveFocusStatusText}" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding LastCompletedReport}" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="10">
+          <TextBlock Text="{Binding Loc.ProjectsTitle}" FontSize="17" FontWeight="Bold" />
+          <WrapPanel Orientation="Horizontal" ItemSpacing="8">
+            <TextBox Width="160" Watermark="Project Name" Text="{Binding NewProjectName}" />
+            <TextBox Width="180" Watermark="Process / Title Pattern" Text="{Binding NewProjectPattern}" />
+            <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddProjectRuleCommand}" />
+          </WrapPanel>
+          <ItemsControl ItemsSource="{Binding ProjectRules}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="dom:ProjectTagRule">
+                <DockPanel Margin="0,3">
+                  <TextBlock Text="{Binding ProjectName}" FontWeight="SemiBold" Width="150" />
+                  <TextBlock Text="{Binding Pattern}" Foreground="{DynamicResource TextMutedBrush}" />
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <DataGrid ItemsSource="{Binding ProjectSummaries}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180">
+            <DataGrid.Columns>
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Project" Binding="{Binding ProjectName}" Width="200" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Active" Binding="{Binding ActiveText}" Width="160" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="On-Screen" Binding="{Binding OnScreenText}" Width="160" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

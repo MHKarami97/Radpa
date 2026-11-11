@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build, Verify & Release Radpa
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate SemVer release tag
+        id: ver
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ($tag -notmatch '^v((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-.]+)?)$') {
+            throw "Invalid release tag '$tag'. Expected SemVer tag like v1.0.0"
+          }
+          $semver = $Matches[1]
+          "semver=$semver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore, Build & Test
+        run: |
+          dotnet restore Radpa.sln
+          dotnet build Radpa.sln -c Release --no-restore -p:CI=true -p:Version=${{ steps.ver.outputs.semver }}
+          dotnet test tests/Radpa.Domain.Tests/Radpa.Domain.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
+          dotnet test tests/Radpa.Application.Tests/Radpa.Application.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:Threshold=85 -p:ThresholdType=line -p:ThresholdStat=total
+          dotnet test tests/Radpa.Infrastructure.Tests/Radpa.Infrastructure.Tests.csproj -c Release --no-build
+          dotnet test tests/Radpa.UI.Tests/Radpa.UI.Tests.csproj -c Release --no-build
+
+      - name: Publish Single-File Binaries (win-x64 & win-arm64)
+        shell: pwsh
+        run: |
+          $v = "${{ steps.ver.outputs.semver }}"
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          foreach ($rid in @('win-x64', 'win-arm64')) {
+            dotnet publish src/Radpa.UI/Radpa.UI.csproj -c Release -r $rid -p:CI=true -p:Version=$v -o "out/$rid"
+            dotnet publish src/Radpa.NetCollector/Radpa.NetCollector.csproj -c Release -r $rid -p:CI=true -p:Version=$v -o "out/$rid"
+            Move-Item "out/$rid/Radpa.exe" "dist/Radpa-$rid.exe"
+            Move-Item "out/$rid/Radpa.NetCollector.exe" "dist/Radpa.NetCollector-$rid.exe"
+          }
+          ./dist/Radpa-win-x64.exe --smoke
+          if ($LASTEXITCODE -ne 0) { throw "Release smoke check failed" }
+          Get-ChildItem dist/*.exe | ForEach-Object {
+            $hash = (Get-FileHash -Path $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash *$($_.Name)"
+          } | Out-File -FilePath dist/SHA256SUMS.txt -Encoding utf8
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/Radpa-win-x64.exe
+            dist/Radpa.NetCollector-win-x64.exe
+            dist/Radpa-win-arm64.exe
+            dist/Radpa.NetCollector-win-arm64.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@8a0cd651e5b20a2381f7854a3fa5dfc70e4875f3 # v3.0.4
+        with:
+          generate_release_notes: true
+          files: |
+            dist/Radpa-win-x64.exe
+            dist/Radpa.NetCollector-win-x64.exe
+            dist/Radpa-win-arm64.exe
+            dist/Radpa.NetCollector-win-arm64.exe
+            dist/SHA256SUMS.txt
+          body: |
+            ## Radpa / ردپا v${{ steps.ver.outputs.semver }}
+
+            ### Downloads
+            - **Windows x64 (Single EXE)**: `Radpa-win-x64.exe`
+            - **Windows ARM64 (Single EXE)**: `Radpa-win-arm64.exe`
+            - **Optional Elevated Network Collector (`ETW`)**: place the matching `Radpa.NetCollector-<rid>.exe` beside `Radpa.exe` ONLY if you want per-app sent/received network breakdown by interface & remote endpoint.
+
+            ### Verify Integrity (SHA-256)
+            ```powershell
+            Get-FileHash .\Radpa-win-x64.exe -Algorithm SHA256
+            ```
+            Compare with `SHA256SUMS.txt`.
+
+            > **Note about Windows SmartScreen / Unsigned Binaries**: Radpa releases are open-source and **not Authenticode-signed**. On first launch, Windows SmartScreen may show *"Windows protected your PC"* — click **More info -> Run anyway** after verifying the SHA-256 checksum and build provenance attestation.

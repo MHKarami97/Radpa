@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <FontFamily x:Key="RadpaFont">avares://Radpa/Assets/Fonts#Vazirmatn UI</FontFamily>
+
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0B1220" />
+      <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#111A2E" />
+      <SolidColorBrush x:Key="CardBackgroundBrush" Color="#17223B" />
+      <SolidColorBrush x:Key="CardBorderBrush" Color="#263554" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#38E8C8" />
+      <SolidColorBrush x:Key="AccentSecondaryBrush" Color="#60A5FA" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#FBBF24" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#F87171" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F1F5F9" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#94A3B8" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F1F5F9" />
+      <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="CardBorderBrush" Color="#CBD5E1" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#0D9488" />
+      <SolidColorBrush x:Key="AccentSecondaryBrush" Color="#2563EB" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#D97706" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#DC2626" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#475569" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

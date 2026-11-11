@@ -1,0 +1,112 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Radpa.UI.ViewModels"
+             xmlns:ctrl="using:Radpa.UI.Controls"
+             x:Class="Radpa.UI.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel"
+             x:CompileBindings="True">
+  <ScrollViewer>
+    <StackPanel Spacing="16" Margin="16">
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+        <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8">
+          <Button Content="{Binding Loc.RangeToday}" Command="{Binding SelectPresetCommand}" CommandParameter="Today" />
+          <Button Content="{Binding Loc.Range7Days}" Command="{Binding SelectPresetCommand}" CommandParameter="7d" />
+          <Button Content="{Binding Loc.Range30Days}" Command="{Binding SelectPresetCommand}" CommandParameter="30d" />
+          <Button Content="{Binding Loc.RangeCustom}" Command="{Binding SelectPresetCommand}" CommandParameter="Custom" />
+          <CalendarDatePicker IsVisible="{Binding IsCustomRange}" SelectedDate="{Binding CustomStartDate}" />
+          <CalendarDatePicker IsVisible="{Binding IsCustomRange}" SelectedDate="{Binding CustomEndDate}" />
+          <TextBox Width="240" Watermark="{Binding Loc.SearchWatermark}" Text="{Binding SearchText}" />
+          <Button Content="{Binding Loc.RefreshButton}" Command="{Binding RefreshCommand}" Background="{DynamicResource AccentBrush}" Foreground="#0F172A" FontWeight="Bold" />
+        </WrapPanel>
+      </Border>
+
+      <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+        <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding Loc.KpiTotalActive}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+            <TextBlock Text="{Binding TotalActiveText}" Foreground="{DynamicResource AccentBrush}" FontSize="20" FontWeight="Bold" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding Loc.KpiTotalSent}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+            <TextBlock Text="{Binding TotalSentText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="20" FontWeight="Bold" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding Loc.KpiTotalReceived}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+            <TextBlock Text="{Binding TotalReceivedText}" Foreground="{DynamicResource AccentSecondaryBrush}" FontSize="20" FontWeight="Bold" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding Loc.KpiTrackedApps}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+            <TextBlock Text="{Binding TrackedAppsCountText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="20" FontWeight="Bold" />
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+        <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Loc.ChartTimelineTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <ctrl:TimelineChartControl Height="150"
+                                       Buckets="{Binding TimelineBuckets}"
+                                       UsePersianDigits="{Binding UsePersianDigits}"
+                                       BarBrush="{DynamicResource AccentBrush}"
+                                       LabelBrush="{DynamicResource TextMutedBrush}" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Loc.ChartTopAppsTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <ctrl:HorizontalBarChartControl Height="150"
+                                            FlowDirection="{Binding Loc.FlowDirection}"
+                                            Items="{Binding TopAppBars}"
+                                            PrimaryBrush="{DynamicResource AccentBrush}"
+                                            LabelBrush="{DynamicResource TextPrimaryBrush}" />
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Loc.ChartNetworkInterfacesTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <ctrl:HorizontalBarChartControl Height="150"
+                                            FlowDirection="{Binding Loc.FlowDirection}"
+                                            Items="{Binding InterfaceNetworkBars}"
+                                            PrimaryBrush="{DynamicResource AccentBrush}"
+                                            SecondaryBrush="{DynamicResource AccentSecondaryBrush}"
+                                            LabelBrush="{DynamicResource TextPrimaryBrush}" />
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="8">
+        <DataGrid x:Name="AppsDataGrid"
+                  ItemsSource="{Binding Rows}"
+                  SelectedItem="{Binding SelectedApp}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserSortColumns="True"
+                  GridLinesVisibility="Horizontal"
+                  MinHeight="320"
+                  MaxHeight="480"
+                  FlowDirection="{Binding Loc.FlowDirection}">
+          <DataGrid.Columns>
+            <DataGridTextColumn x:Name="ColApp" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DisplayName}" SortMemberPath="DisplayName" Width="170" />
+            <DataGridTextColumn x:Name="ColActive" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ActiveText}" SortMemberPath="Raw.ActiveDuration" Width="110" />
+            <DataGridTextColumn x:Name="ColOnScreen" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OnScreenText}" SortMemberPath="Raw.OnScreenDuration" Width="110" />
+            <DataGridTextColumn x:Name="ColOpen" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OpenText}" SortMemberPath="Raw.OpenDuration" Width="110" />
+            <DataGridTextColumn x:Name="ColCpu" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding CpuText}" SortMemberPath="Raw.AverageCpuPercent" Width="80" />
+            <DataGridTextColumn x:Name="ColRam" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding RamText}" SortMemberPath="Raw.PeakWorkingSetBytes" Width="105" />
+            <DataGridTextColumn x:Name="ColDisk" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DiskText}" SortMemberPath="Raw.DiskReadBytes" Width="105" />
+            <DataGridTextColumn x:Name="ColGpu" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding GpuText}" Width="125" />
+            <DataGridTextColumn x:Name="ColSent" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="100" />
+            <DataGridTextColumn x:Name="ColReceived" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="100" />
+            <DataGridTextColumn x:Name="ColHealth" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="90" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

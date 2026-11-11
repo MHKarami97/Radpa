@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Radpa.UI.ViewModels"
+        xmlns:views="using:Radpa.UI.Views"
+        x:Class="Radpa.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="True"
+        Title="{Binding Loc.AppTitle}"
+        FlowDirection="{Binding WindowFlowDirection}"
+        FontFamily="{StaticResource RadpaFont}"
+        Background="{DynamicResource AppBackgroundBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
+        Width="1220"
+        Height="780"
+        MinWidth="920"
+        MinHeight="620">
+  <DockPanel>
+    <!-- Sidebar Navigation -->
+    <Border DockPanel.Dock="Left" Width="210" Background="{DynamicResource SidebarBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,1,0" Padding="14">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,4,0,20">
+          <TextBlock Text="{Binding Loc.AppShortName}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" />
+          <TextBlock Text="{Binding Loc.LocalPrivacyBadge}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel Spacing="6">
+          <Button Content="{Binding Loc.NavDashboard}" Command="{Binding NavigateToCommand}" CommandParameter="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10" />
+          <Button Content="{Binding Loc.NavPrivacy}" Command="{Binding NavigateToCommand}" CommandParameter="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10" />
+          <Button Content="{Binding Loc.NavInsights}" Command="{Binding NavigateToCommand}" CommandParameter="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10" />
+          <Button Content="{Binding Loc.NavFocus}" Command="{Binding NavigateToCommand}" CommandParameter="3" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10" />
+          <Button Content="{Binding Loc.NavSettings}" Command="{Binding NavigateToCommand}" CommandParameter="4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="12,10" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <DockPanel>
+      <!-- Optional GitHub Update Banner -->
+      <Border DockPanel.Dock="Top" IsVisible="{Binding HasUpdateBanner}" Background="#1F38E8C8" Padding="12,8" Margin="16,12,16,0" CornerRadius="8">
+        <WrapPanel Orientation="Horizontal" ItemSpacing="10">
+          <TextBlock Text="{Binding UpdateBannerText}" VerticalAlignment="Center" FontWeight="SemiBold" />
+          <Button Content="{Binding Loc.UpdateBannerOpen}" Command="{Binding OpenUpdateReleasePageCommand}" />
+          <Button Content="{Binding Loc.UpdateBannerSkip}" Command="{Binding SkipUpdateVersionCommand}" />
+        </WrapPanel>
+      </Border>
+
+      <!-- Tab Content -->
+      <TabControl SelectedIndex="{Binding SelectedTabIndex}" Padding="0">
+        <TabControl.Styles>
+          <Style Selector="TabItem">
+            <Setter Property="IsVisible" Value="False" />
+          </Style>
+        </TabControl.Styles>
+        <TabItem>
+          <views:DashboardView DataContext="{Binding Dashboard}" />
+        </TabItem>
+        <TabItem>
+          <views:PrivacyAuditorView DataContext="{Binding Privacy}" />
+        </TabItem>
+        <TabItem>
+          <views:InsightsView DataContext="{Binding Insights}" />
+        </TabItem>
+        <TabItem>
+          <views:FocusAndProjectsView DataContext="{Binding Focus}" />
+        </TabItem>
+        <TabItem>
+          <views:SettingsView DataContext="{Binding Settings}" />
+        </TabItem>
+      </TabControl>
+    </DockPanel>
+  </DockPanel>
+</Window>

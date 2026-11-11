@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Radpa.UI.ViewModels"
+             xmlns:dom="using:Radpa.Domain.Entities"
+             x:Class="Radpa.UI.Views.InsightsView"
+             x:DataType="vm:InsightsViewModel"
+             x:CompileBindings="True">
+  <ScrollViewer>
+    <StackPanel Spacing="14" Margin="16">
+      <!-- Anomalies -->
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding Loc.InsightsAnomalies}" FontWeight="Bold" FontSize="15" />
+          <ItemsControl ItemsSource="{Binding Anomalies}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="dom:AnomalyAlert">
+                <Border Background="#26FBBF24" CornerRadius="6" Padding="8" Margin="0,2">
+                  <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" />
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Health Score Breakdown -->
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding Loc.InsightsHealthBreakdown}" FontWeight="Bold" FontSize="15" />
+          <DataGrid ItemsSource="{Binding HealthRows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180" MaxHeight="260">
+            <DataGrid.Columns>
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="App" Binding="{Binding AppName}" Width="180" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Total" Binding="{Binding TotalText}" Width="90" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Resource (60%)" Binding="{Binding ResourceText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Network (25%)" Binding="{Binding NetworkText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Startup (15%)" Binding="{Binding StartupText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Grade" Binding="{Binding Grade}" Width="80" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </StackPanel>
+      </Border>
+
+      <!-- Rules Engine -->
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{Binding Loc.InsightsRulesEngine}" FontWeight="Bold" FontSize="15" />
+          <WrapPanel Orientation="Horizontal" ItemSpacing="8">
+            <TextBox Width="160" Watermark="Rule Name" Text="{Binding NewRuleName}" />
+            <TextBox Width="140" Watermark="App pattern (*)" Text="{Binding NewRuleAppPattern}" />
+            <NumericUpDown Width="130" Minimum="1" Maximum="100000" Value="{Binding NewRuleMaxUploadMbPerHour}" />
+            <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddRuleCommand}" />
+          </WrapPanel>
+          <ItemsControl ItemsSource="{Binding Rules}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="dom:NetworkAlertRule">
+                <DockPanel Margin="0,4">
+                  <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Width="180" />
+                  <TextBlock Text="{Binding AppPattern}" Foreground="{DynamicResource TextMutedBrush}" Width="140" />
+                  <TextBlock Text="{Binding MaxUploadMegabytesPerHour, StringFormat='{}{0} MB/h'}" />
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Period Comparison -->
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+        <StackPanel Spacing="8">
+          <DockPanel>
+            <TextBlock Text="{Binding Loc.InsightsPeriodCompare}" FontWeight="Bold" FontSize="15" />
+            <Button Content="{Binding Loc.BtnRunCompare}" Command="{Binding CompareLastWeekVsPreviousCommand}" HorizontalAlignment="Right" />
+          </DockPanel>
+          <DataGrid ItemsSource="{Binding ComparisonRows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180" MaxHeight="260">
+            <DataGrid.Columns>
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="App" Binding="{Binding AppName}" Width="180" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Before" Binding="{Binding BeforeActiveText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="After" Binding="{Binding AfterActiveText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Active Δ" Binding="{Binding ActiveDeltaText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="CPU Δ" Binding="{Binding CpuDeltaText}" Width="90" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Net Δ" Binding="{Binding NetDeltaText}" Width="120" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
