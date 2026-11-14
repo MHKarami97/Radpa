@@ -6,6 +6,7 @@
         x:DataType="vm:MainWindowViewModel"
         x:CompileBindings="True"
         Title="{Binding Loc.AppTitle}"
+        WindowState="Maximized"
         FlowDirection="{Binding WindowFlowDirection}"
         FontFamily="{StaticResource RadpaFont}"
         Background="{DynamicResource AppBackgroundBrush}"
@@ -44,7 +45,7 @@
       </Border>
 
       <!-- Tab Content -->
-      <TabControl SelectedIndex="{Binding SelectedTabIndex}" Padding="0">
+      <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}" Padding="0">
         <TabControl.Styles>
           <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
             <Setter Property="IsVisible" Value="False" />

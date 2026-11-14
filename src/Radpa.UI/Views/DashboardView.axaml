@@ -28,16 +28,26 @@
           </StackPanel>
         </Border>
         <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
-          <StackPanel Spacing="4">
-            <TextBlock Text="{Binding Loc.KpiTotalSent}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
-            <TextBlock Text="{Binding TotalSentText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="20" FontWeight="Bold" />
-          </StackPanel>
+          <Grid>
+            <StackPanel Spacing="4" Opacity="{Binding NetworkSectionOpacity}">
+              <TextBlock Text="{Binding Loc.KpiTotalSent}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding TotalSentText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="20" FontWeight="Bold" />
+            </StackPanel>
+            <Border IsVisible="{Binding IsAdminRequiredNoticeVisible}" Background="#60111A2E" CornerRadius="4" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="5,2">
+              <TextBlock Text="🔒 Admin" FontSize="10" Foreground="{DynamicResource WarningBrush}" />
+            </Border>
+          </Grid>
         </Border>
         <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
-          <StackPanel Spacing="4">
-            <TextBlock Text="{Binding Loc.KpiTotalReceived}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
-            <TextBlock Text="{Binding TotalReceivedText}" Foreground="{DynamicResource AccentSecondaryBrush}" FontSize="20" FontWeight="Bold" />
-          </StackPanel>
+          <Grid>
+            <StackPanel Spacing="4" Opacity="{Binding NetworkSectionOpacity}">
+              <TextBlock Text="{Binding Loc.KpiTotalReceived}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding TotalReceivedText}" Foreground="{DynamicResource AccentSecondaryBrush}" FontSize="20" FontWeight="Bold" />
+            </StackPanel>
+            <Border IsVisible="{Binding IsAdminRequiredNoticeVisible}" Background="#60111A2E" CornerRadius="4" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="5,2">
+              <TextBlock Text="🔒 Admin" FontSize="10" Foreground="{DynamicResource WarningBrush}" />
+            </Border>
+          </Grid>
         </Border>
         <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
           <StackPanel Spacing="4">
@@ -69,17 +79,64 @@
           </StackPanel>
         </Border>
         <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
-          <StackPanel Spacing="8">
-            <TextBlock Text="{Binding Loc.ChartNetworkInterfacesTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
-            <ctrl:HorizontalBarChartControl Height="150"
-                                            FlowDirection="{Binding Loc.FlowDirection}"
-                                            Items="{Binding InterfaceNetworkBars}"
-                                            PrimaryBrush="{DynamicResource AccentBrush}"
-                                            SecondaryBrush="{DynamicResource AccentSecondaryBrush}"
-                                            LabelBrush="{DynamicResource TextPrimaryBrush}" />
-          </StackPanel>
+          <Grid>
+            <StackPanel Spacing="8" Opacity="{Binding NetworkSectionOpacity}">
+              <TextBlock Text="{Binding Loc.ChartNetworkInterfacesTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+              <ctrl:HorizontalBarChartControl Height="150"
+                                              FlowDirection="{Binding Loc.FlowDirection}"
+                                              Items="{Binding InterfaceNetworkBars}"
+                                              PrimaryBrush="{DynamicResource AccentBrush}"
+                                              SecondaryBrush="{DynamicResource AccentSecondaryBrush}"
+                                              LabelBrush="{DynamicResource TextPrimaryBrush}" />
+            </StackPanel>
+            <Border IsVisible="{Binding IsAdminRequiredNoticeVisible}"
+                    Background="#D9111A2E"
+                    CornerRadius="8"
+                    Padding="14"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                <TextBlock Text="🔒" FontSize="22" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Loc.AdminRequiredBadge}"
+                           FontWeight="Bold"
+                           FontSize="12"
+                           Foreground="{DynamicResource WarningBrush}"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center" />
+                <TextBlock Text="{Binding Loc.AdminRequiredDescription}"
+                           FontSize="11"
+                           Foreground="{DynamicResource TextMutedBrush}"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center" />
+              </StackPanel>
+            </Border>
+          </Grid>
         </Border>
       </Grid>
+
+      <Border IsVisible="{Binding IsCollectingInitialData}"
+              Background="{DynamicResource CardBackgroundBrush}"
+              BorderBrush="{DynamicResource AccentBrush}"
+              BorderThickness="1"
+              CornerRadius="10"
+              Padding="20">
+        <StackPanel HorizontalAlignment="Center" Spacing="8">
+          <TextBlock Text="⏳" FontSize="26" HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding Loc.InitialDataCollectingTitle}"
+                     FontSize="15"
+                     FontWeight="Bold"
+                     Foreground="{DynamicResource AccentBrush}"
+                     HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding Loc.InitialDataCollectingMessage}"
+                     FontSize="12"
+                     Foreground="{DynamicResource TextMutedBrush}"
+                     HorizontalAlignment="Center"
+                     TextWrapping="Wrap"
+                     TextAlignment="Center" />
+        </StackPanel>
+      </Border>
 
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="8">
         <DataGrid x:Name="AppsDataGrid"
@@ -88,22 +145,23 @@
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserSortColumns="True"
+                  CanUserResizeColumns="True"
                   GridLinesVisibility="Horizontal"
                   MinHeight="320"
                   MaxHeight="480"
                   FlowDirection="{Binding Loc.FlowDirection}">
           <DataGrid.Columns>
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DisplayName}" SortMemberPath="DisplayName" Width="170" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ActiveText}" SortMemberPath="Raw.ActiveDuration" Width="110" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OnScreenText}" SortMemberPath="Raw.OnScreenDuration" Width="110" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OpenText}" SortMemberPath="Raw.OpenDuration" Width="110" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding CpuText}" SortMemberPath="Raw.AverageCpuPercent" Width="80" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding RamText}" SortMemberPath="Raw.PeakWorkingSetBytes" Width="105" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DiskText}" SortMemberPath="Raw.DiskReadBytes" Width="105" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding GpuText}" Width="125" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="100" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="100" />
-            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="90" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DisplayName}" SortMemberPath="DisplayName" Width="Auto" MinWidth="180" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ActiveText}" SortMemberPath="Raw.ActiveDuration" Width="Auto" MinWidth="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OnScreenText}" SortMemberPath="Raw.OnScreenDuration" Width="Auto" MinWidth="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OpenText}" SortMemberPath="Raw.OpenDuration" Width="Auto" MinWidth="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding CpuText}" SortMemberPath="Raw.AverageCpuPercent" Width="Auto" MinWidth="90" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding RamText}" SortMemberPath="Raw.PeakWorkingSetBytes" Width="Auto" MinWidth="115" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DiskText}" SortMemberPath="Raw.DiskReadBytes" Width="Auto" MinWidth="120" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding GpuText}" Width="Auto" MinWidth="135" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="Auto" MinWidth="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="Auto" MinWidth="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="Auto" MinWidth="110" />
           </DataGrid.Columns>
         </DataGrid>
       </Border>

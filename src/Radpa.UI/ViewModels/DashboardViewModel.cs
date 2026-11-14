@@ -47,6 +47,7 @@ public sealed partial class DashboardViewModel : ObservableObject
         Loc = loc;
         CustomStartDate = _clock.LocalNow.Date.AddDays(-7);
         CustomEndDate = _clock.LocalNow.Date;
+        IsNetworkAccessAvailable = CheckIsAdministrator();
     }
 
     public Localizer Loc { get; }
@@ -89,6 +90,22 @@ public sealed partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty]
     public partial bool UsePersianDigits { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsCollectingInitialData { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool IsNetworkAccessAvailable { get; set; } = true;
+
+    public bool IsAdminRequiredNoticeVisible => !IsNetworkAccessAvailable;
+
+    public double NetworkSectionOpacity => IsNetworkAccessAvailable ? 1.0 : 0.35;
+
+    partial void OnIsNetworkAccessAvailableChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsAdminRequiredNoticeVisible));
+        OnPropertyChanged(nameof(NetworkSectionOpacity));
+    }
 
     public ObservableCollection<AppMetricRowViewModel> Rows { get; } = [];
 
@@ -143,6 +160,7 @@ public sealed partial class DashboardViewModel : ObservableObject
     {
         ArgumentNullException.ThrowIfNull(settings);
         UsePersianDigits = settings.UsePersianDigits;
+        IsNetworkAccessAvailable = CheckIsAdministrator() || settings.DetailedNetworkEnabled;
         ApplyProjection();
     }
 
@@ -150,8 +168,11 @@ public sealed partial class DashboardViewModel : ObservableObject
     {
         if (_lastSnapshot is null)
         {
+            IsCollectingInitialData = true;
             return;
         }
+
+        IsCollectingInitialData = _lastSnapshot.Apps.Count == 0;
 
         var fa = Loc.IsPersian;
         var digits = UsePersianDigits;
@@ -219,6 +240,25 @@ public sealed partial class DashboardViewModel : ObservableObject
                 ValueText = $"{NumberFormatter.FormatBytes(n.BytesSent, digits, fa)} / {NumberFormatter.FormatBytes(n.BytesReceived, digits, fa)}",
             })
             .ToArray();
+    }
+
+    public static bool CheckIsAdministrator()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
+        try
+        {
+            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            var principal = new System.Security.Principal.WindowsPrincipal(identity);
+            return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private TimeRange BuildCustomRange(DateTimeOffset nowUtc)

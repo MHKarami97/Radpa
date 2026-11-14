@@ -17,6 +17,8 @@ public sealed partial class MainWindow : Window
         : this()
     {
         DataContext = viewModel;
+        WindowState = WindowState.Maximized;
+        viewModel.SelectedTabIndex = 0;
         if (enableAutoRefresh)
         {
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };

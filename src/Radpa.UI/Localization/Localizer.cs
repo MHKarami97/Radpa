@@ -49,6 +49,15 @@ public sealed partial class Localizer : ObservableObject
     public string ChartTimelineTitle => IsPersian ? "روند فعالیت و ترافیک شبکه" : "Activity & Network Timeline";
     public string ChartTopAppsTitle => IsPersian ? "پرمصرف‌ترین برنامه‌ها (زمان فعال)" : "Top Applications (Active Time)";
     public string ChartNetworkInterfacesTitle => IsPersian ? "ترافیک شبکه به تفکیک رابط (ارسال / دریافت)" : "Network Traffic by Interface (Sent / Recv)";
+    public string InitialDataCollectingTitle => IsPersian ? "در حال پایش و جمع‌آوری داده‌های اولیه..." : "Collecting initial telemetry data...";
+    public string InitialDataCollectingMessage => IsPersian
+        ? "لطفاً چند لحظه صبر کنید؛ اولین بازه نمونه‌برداری فعالیت برنامه‌ها در حال ثبت و ذخیره‌سازی محلی است."
+        : "Please wait a moment; the first telemetry batch is being recorded and stored locally.";
+    public string AdminRequiredBadge => IsPersian ? "نیازمند اجرای برنامه با دسترسی Administrator" : "Administrator privilege required";
+    public string AdminRequiredDescription => IsPersian
+        ? "جهت پایش تفکیکی بسته‌های ارسالی/دریافتی شبکه، برنامه را به‌صورت Run as Administrator اجرا کنید یا ماژول شبکه را در تنظیمات فعال نمایید."
+        : "To monitor network sent/received traffic, run as Administrator or enable the network module in Settings.";
+    public string AdminRequiredKpiBadge => IsPersian ? "نیازمند دسترسی ادمین" : "Admin required";
 
     public string ColApp => IsPersian ? "برنامه" : "Application";
     public string ColOpen => IsPersian ? "زمان باز" : "Open";

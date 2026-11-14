@@ -20,6 +20,8 @@ public sealed class HorizontalBarItem
 /// </summary>
 public sealed class HorizontalBarChartControl : Control
 {
+    protected override bool BypassFlowDirectionPolicies => true;
+
     public static readonly StyledProperty<IReadOnlyList<HorizontalBarItem>?> ItemsProperty =
         AvaloniaProperty.Register<HorizontalBarChartControl, IReadOnlyList<HorizontalBarItem>?>(nameof(Items));
 
@@ -96,7 +98,7 @@ public sealed class HorizontalBarChartControl : Control
             var labelText = new FormattedText(
                 item.Label,
                 CultureInfo.InvariantCulture,
-                isRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight,
+                FlowDirection.LeftToRight,
                 typeface,
                 12,
                 textBrush)
@@ -104,6 +106,7 @@ public sealed class HorizontalBarChartControl : Control
                 MaxTextWidth = labelWidth,
                 MaxLineCount = 1,
                 Trimming = TextTrimming.CharacterEllipsis,
+                TextAlignment = isRtl ? TextAlignment.Right : TextAlignment.Left,
             };
 
             var valText = new FormattedText(
@@ -116,6 +119,7 @@ public sealed class HorizontalBarChartControl : Control
             {
                 MaxTextWidth = valueWidth,
                 MaxLineCount = 1,
+                TextAlignment = isRtl ? TextAlignment.Left : TextAlignment.Right,
             };
 
             var barX = isRtl ? valueWidth + 8 : labelWidth + 8;
@@ -139,7 +143,7 @@ public sealed class HorizontalBarChartControl : Control
                     context.DrawRectangle(secondaryBrush, null, new Rect(rightEdge - primaryW - secondaryW, barY, secondaryW, 10), 4, 4);
                 }
 
-                context.DrawText(labelText, new Point(Bounds.Width - labelText.Width, y + 4));
+                context.DrawText(labelText, new Point(Bounds.Width - labelWidth, y + 4));
                 context.DrawText(valText, new Point(0, y + 5));
             }
             else
@@ -166,6 +170,8 @@ public sealed class HorizontalBarChartControl : Control
 /// </summary>
 public sealed class TimelineChartControl : Control
 {
+    protected override bool BypassFlowDirectionPolicies => true;
+
     public static readonly StyledProperty<IReadOnlyList<TimelineBucket>?> BucketsProperty =
         AvaloniaProperty.Register<TimelineChartControl, IReadOnlyList<TimelineBucket>?>(nameof(Buckets));
 
@@ -180,7 +186,7 @@ public sealed class TimelineChartControl : Control
 
     static TimelineChartControl()
     {
-        AffectsRender<TimelineChartControl>(BucketsProperty, UsePersianDigitsProperty, BarBrushProperty, LabelBrushProperty);
+        AffectsRender<TimelineChartControl>(BucketsProperty, UsePersianDigitsProperty, BarBrushProperty, LabelBrushProperty, FlowDirectionProperty);
     }
 
     public IReadOnlyList<TimelineBucket>? Buckets
