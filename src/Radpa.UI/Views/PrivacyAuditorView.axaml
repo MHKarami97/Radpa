@@ -17,21 +17,22 @@
     </Border>
 
     <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="8">
-      <DataGrid ItemsSource="{Binding Entries}"
+      <DataGrid x:Name="AuditDataGrid"
+                ItemsSource="{Binding Entries}"
                 AutoGenerateColumns="False"
                 IsReadOnly="True"
                 CanUserSortColumns="True"
                 MinHeight="400"
                 FlowDirection="{Binding Loc.FlowDirection}">
         <DataGrid.Columns>
-          <DataGridTextColumn x:Name="ColApp" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding AppName}" Width="160" />
-          <DataGridTextColumn x:Name="ColIface" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding InterfaceLabel}" Width="140" />
-          <DataGridTextColumn x:Name="ColIp" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding RemoteIp}" Width="135" />
-          <DataGridTextColumn x:Name="ColDomain" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding DomainDisplay}" Width="190" />
-          <DataGridTextColumn x:Name="ColSent" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding SentText}" Width="105" />
-          <DataGridTextColumn x:Name="ColRecv" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding ReceivedText}" Width="105" />
-          <DataGridTextColumn x:Name="ColFirstSeen" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding FirstSeenText}" Width="140" />
-          <DataGridTextColumn x:Name="ColBadge" x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding NewBadgeText}" Width="75" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding AppName}" Width="160" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding InterfaceLabel}" Width="140" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding RemoteIp}" Width="135" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding DomainDisplay}" Width="190" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding SentText}" Width="105" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding ReceivedText}" Width="105" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding FirstSeenText}" Width="140" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding NewBadgeText}" Width="75" />
         </DataGrid.Columns>
       </DataGrid>
     </Border>

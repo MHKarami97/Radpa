@@ -93,17 +93,17 @@
                   MaxHeight="480"
                   FlowDirection="{Binding Loc.FlowDirection}">
           <DataGrid.Columns>
-            <DataGridTextColumn x:Name="ColApp" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DisplayName}" SortMemberPath="DisplayName" Width="170" />
-            <DataGridTextColumn x:Name="ColActive" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ActiveText}" SortMemberPath="Raw.ActiveDuration" Width="110" />
-            <DataGridTextColumn x:Name="ColOnScreen" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OnScreenText}" SortMemberPath="Raw.OnScreenDuration" Width="110" />
-            <DataGridTextColumn x:Name="ColOpen" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OpenText}" SortMemberPath="Raw.OpenDuration" Width="110" />
-            <DataGridTextColumn x:Name="ColCpu" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding CpuText}" SortMemberPath="Raw.AverageCpuPercent" Width="80" />
-            <DataGridTextColumn x:Name="ColRam" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding RamText}" SortMemberPath="Raw.PeakWorkingSetBytes" Width="105" />
-            <DataGridTextColumn x:Name="ColDisk" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DiskText}" SortMemberPath="Raw.DiskReadBytes" Width="105" />
-            <DataGridTextColumn x:Name="ColGpu" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding GpuText}" Width="125" />
-            <DataGridTextColumn x:Name="ColSent" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="100" />
-            <DataGridTextColumn x:Name="ColReceived" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="100" />
-            <DataGridTextColumn x:Name="ColHealth" x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="90" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DisplayName}" SortMemberPath="DisplayName" Width="170" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ActiveText}" SortMemberPath="Raw.ActiveDuration" Width="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OnScreenText}" SortMemberPath="Raw.OnScreenDuration" Width="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding OpenText}" SortMemberPath="Raw.OpenDuration" Width="110" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding CpuText}" SortMemberPath="Raw.AverageCpuPercent" Width="80" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding RamText}" SortMemberPath="Raw.PeakWorkingSetBytes" Width="105" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding DiskText}" SortMemberPath="Raw.DiskReadBytes" Width="105" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding GpuText}" Width="125" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="100" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="100" />
+            <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="90" />
           </DataGrid.Columns>
         </DataGrid>
       </Border>
