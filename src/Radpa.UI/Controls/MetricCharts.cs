@@ -112,7 +112,7 @@ public sealed class HorizontalBarChartControl : Control
             var valText = new FormattedText(
                 item.ValueText,
                 CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
+                isRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight,
                 typeface,
                 11,
                 textBrush)

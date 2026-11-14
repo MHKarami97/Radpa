@@ -40,11 +40,11 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <DataGrid ItemsSource="{Binding ProjectSummaries}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180">
+          <DataGrid ItemsSource="{Binding ProjectSummaries}" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" MinHeight="180">
             <DataGrid.Columns>
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Project" Binding="{Binding ProjectName}" Width="200" />
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Active" Binding="{Binding ActiveText}" Width="160" />
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="On-Screen" Binding="{Binding OnScreenText}" Width="160" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Project" Binding="{Binding ProjectName}" Width="Auto" MinWidth="200" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Active" Binding="{Binding ActiveText}" Width="Auto" MinWidth="160" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="On-Screen" Binding="{Binding OnScreenText}" Width="Auto" MinWidth="160" />
             </DataGrid.Columns>
           </DataGrid>
         </StackPanel>

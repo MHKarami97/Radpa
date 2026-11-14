@@ -6,7 +6,8 @@
              x:DataType="vm:DashboardViewModel"
              x:CompileBindings="True">
   <ScrollViewer>
-    <StackPanel Spacing="16" Margin="16">
+    <Panel>
+      <StackPanel Spacing="16" Margin="16" IsVisible="{Binding !IsAppDetailOpen}">
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
         <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8">
           <Button Content="{Binding Loc.RangeToday}" Command="{Binding SelectPresetCommand}" CommandParameter="Today" />
@@ -17,6 +18,13 @@
           <CalendarDatePicker IsVisible="{Binding IsCustomRange}" SelectedDate="{Binding CustomEndDate}" />
           <TextBox Width="240" PlaceholderText="{Binding Loc.SearchWatermark}" Text="{Binding SearchText}" />
           <Button Content="{Binding Loc.RefreshButton}" Command="{Binding RefreshCommand}" Background="{DynamicResource AccentBrush}" Foreground="#0F172A" FontWeight="Bold" />
+          <Border IsVisible="{Binding LastUpdatedText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                  Background="#1A38E8C8"
+                  CornerRadius="6"
+                  Padding="10,6"
+                  VerticalAlignment="Center">
+            <TextBlock Text="{Binding LastUpdatedText}" FontSize="12" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold" />
+          </Border>
         </WrapPanel>
       </Border>
 
@@ -60,7 +68,11 @@
       <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
         <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
           <StackPanel Spacing="8">
-            <TextBlock Text="{Binding Loc.ChartTimelineTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <DockPanel>
+              <TextBlock Text="{Binding Loc.ChartTimelineTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+              <TextBlock Text="{Binding Loc.TimelineUnitBadge}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Right" />
+            </DockPanel>
+            <TextBlock Text="{Binding Loc.ChartTimelineSubtitle}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="0,-4,0,0" />
             <ctrl:TimelineChartControl Height="150"
                                        Buckets="{Binding TimelineBuckets}"
                                        UsePersianDigits="{Binding UsePersianDigits}"
@@ -162,9 +174,135 @@
             <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding SentText}" SortMemberPath="Raw.NetworkSentBytes" Width="Auto" MinWidth="110" />
             <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding ReceivedText}" SortMemberPath="Raw.NetworkReceivedBytes" Width="Auto" MinWidth="110" />
             <DataGridTextColumn x:DataType="vm:AppMetricRowViewModel" Binding="{Binding HealthText}" SortMemberPath="Raw.HealthScore.TotalScore" Width="Auto" MinWidth="110" />
+            <DataGridTemplateColumn Width="Auto" MinWidth="90">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate x:DataType="vm:AppMetricRowViewModel">
+                  <Button Content="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).Loc.ViewDetails}"
+                          Command="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).OpenAppDetailCommand}"
+                          CommandParameter="{Binding .}"
+                          Padding="10,3"
+                          FontSize="11"
+                          FontWeight="SemiBold"
+                          Background="#2638E8C8"
+                          Foreground="{DynamicResource AccentBrush}"
+                          HorizontalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
           </DataGrid.Columns>
         </DataGrid>
       </Border>
-    </StackPanel>
+      </StackPanel>
+
+      <!-- ================= APPLICATION DETAIL VIEW ================= -->
+      <StackPanel Spacing="16" Margin="16" IsVisible="{Binding IsAppDetailOpen}">
+        <!-- Top Navigation / Header -->
+        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+          <DockPanel>
+            <Button DockPanel.Dock="Left"
+                    Content="{Binding Loc.BackToDashboard}"
+                    Command="{Binding CloseAppDetailCommand}"
+                    Background="{DynamicResource AccentBrush}"
+                    Foreground="#0F172A"
+                    FontWeight="Bold"
+                    Padding="14,8"
+                    Margin="0,0,16,0" />
+
+            <StackPanel Spacing="4">
+              <WrapPanel Orientation="Horizontal" ItemSpacing="10">
+                <TextBlock Text="{Binding DetailedApp.DisplayName}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" />
+                <Border Background="#2038E8C8" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding DetailedApp.HealthText, StringFormat='{}Grade: {0}'}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" />
+                </Border>
+              </WrapPanel>
+              <TextBlock Text="{Binding DetailedApp.ExecutablePath}" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
+        <!-- KPI Metrics for this App -->
+        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+          <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding Loc.ColActive}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding DetailedApp.ActiveText}" Foreground="{DynamicResource AccentBrush}" FontSize="18" FontWeight="Bold" />
+              <TextBlock Text="{Binding DetailedApp.OnScreenText, StringFormat='{}در صفحه: {0}'}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding Loc.ColCpu}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding DetailedApp.CpuText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="18" FontWeight="Bold" />
+              <TextBlock Text="{Binding DetailedApp.OpenText, StringFormat='{}زمان باز: {0}'}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding Loc.ColRam}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding DetailedApp.RamText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="18" FontWeight="Bold" />
+              <TextBlock Text="{Binding DetailedApp.DiskText, StringFormat='{}دیسک: {0}'}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" />
+            </StackPanel>
+          </Border>
+          <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding Loc.ColGpu}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+              <TextBlock Text="{Binding DetailedApp.GpuText}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="18" FontWeight="Bold" />
+              <TextBlock Text="{Binding DetailedApp.HealthText, StringFormat='{}سلامت: {0}'}" Foreground="{DynamicResource AccentSecondaryBrush}" FontSize="11" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <!-- Two Detailed Analytical Charts -->
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+          <!-- Usage Durations Bar Chart -->
+          <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Loc.AppDetailDurations}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+              <ctrl:HorizontalBarChartControl Height="140"
+                                              FlowDirection="{Binding Loc.FlowDirection}"
+                                              Items="{Binding DetailedAppDurationBars}"
+                                              PrimaryBrush="{DynamicResource AccentBrush}"
+                                              LabelBrush="{DynamicResource TextPrimaryBrush}" />
+            </StackPanel>
+          </Border>
+
+          <!-- Network Data Transfer Bar Chart -->
+          <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding Loc.AppDetailNetworkMetrics}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+              <ctrl:HorizontalBarChartControl Height="140"
+                                              FlowDirection="{Binding Loc.FlowDirection}"
+                                              Items="{Binding DetailedAppNetworkBars}"
+                                              PrimaryBrush="{DynamicResource AccentBrush}"
+                                              SecondaryBrush="{DynamicResource AccentSecondaryBrush}"
+                                              LabelBrush="{DynamicResource TextPrimaryBrush}" />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <!-- Observed Network Destinations for this App -->
+        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Loc.AppDetailDestinationsTitle}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" />
+            <DataGrid ItemsSource="{Binding DetailedAppPrivacyRows}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserResizeColumns="True"
+                      MinHeight="160"
+                      MaxHeight="260"
+                      FlowDirection="{Binding Loc.FlowDirection}">
+              <DataGrid.Columns>
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="رابط شبکه" Binding="{Binding InterfaceLabel}" Width="Auto" MinWidth="130" />
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="آی‌پی مقصد" Binding="{Binding RemoteIp}" Width="Auto" MinWidth="130" />
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="نام دامنه" Binding="{Binding DomainDisplay}" Width="Auto" MinWidth="180" />
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="ارسال" Binding="{Binding SentText}" Width="Auto" MinWidth="105" />
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="دریافت" Binding="{Binding ReceivedText}" Width="Auto" MinWidth="105" />
+                <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Header="اولین مشاهده" Binding="{Binding FirstSeenText}" Width="Auto" MinWidth="140" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Panel>
   </ScrollViewer>
 </UserControl>

@@ -22,17 +22,18 @@
                 AutoGenerateColumns="False"
                 IsReadOnly="True"
                 CanUserSortColumns="True"
+                CanUserResizeColumns="True"
                 MinHeight="400"
                 FlowDirection="{Binding Loc.FlowDirection}">
         <DataGrid.Columns>
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding AppName}" Width="160" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding InterfaceLabel}" Width="140" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding RemoteIp}" Width="135" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding DomainDisplay}" Width="190" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding SentText}" Width="105" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding ReceivedText}" Width="105" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding FirstSeenText}" Width="140" />
-          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding NewBadgeText}" Width="75" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding AppName}" Width="Auto" MinWidth="160" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding InterfaceLabel}" Width="Auto" MinWidth="130" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding RemoteIp}" Width="Auto" MinWidth="130" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding DomainDisplay}" Width="Auto" MinWidth="180" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding SentText}" Width="Auto" MinWidth="105" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding ReceivedText}" Width="Auto" MinWidth="105" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding FirstSeenText}" Width="Auto" MinWidth="140" />
+          <DataGridTextColumn x:DataType="vm:PrivacyAuditRowViewModel" Binding="{Binding NewBadgeText}" Width="Auto" MinWidth="80" />
         </DataGrid.Columns>
       </DataGrid>
     </Border>

@@ -27,14 +27,14 @@
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
         <StackPanel Spacing="8">
           <TextBlock Text="{Binding Loc.InsightsHealthBreakdown}" FontWeight="Bold" FontSize="15" />
-          <DataGrid ItemsSource="{Binding HealthRows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180" MaxHeight="260">
+          <DataGrid ItemsSource="{Binding HealthRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" MinHeight="180" MaxHeight="260">
             <DataGrid.Columns>
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="App" Binding="{Binding AppName}" Width="180" />
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Total" Binding="{Binding TotalText}" Width="90" />
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Resource (60%)" Binding="{Binding ResourceText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Network (25%)" Binding="{Binding NetworkText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Startup (15%)" Binding="{Binding StartupText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Grade" Binding="{Binding Grade}" Width="80" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="App" Binding="{Binding AppName}" Width="Auto" MinWidth="180" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Total" Binding="{Binding TotalText}" Width="Auto" MinWidth="90" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Resource (60%)" Binding="{Binding ResourceText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Network (25%)" Binding="{Binding NetworkText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Startup (15%)" Binding="{Binding StartupText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:HealthBreakdownRowViewModel" Header="Grade" Binding="{Binding Grade}" Width="Auto" MinWidth="80" />
             </DataGrid.Columns>
           </DataGrid>
         </StackPanel>
@@ -71,14 +71,14 @@
             <TextBlock Text="{Binding Loc.InsightsPeriodCompare}" FontWeight="Bold" FontSize="15" />
             <Button Content="{Binding Loc.BtnRunCompare}" Command="{Binding CompareLastWeekVsPreviousCommand}" HorizontalAlignment="Right" />
           </DockPanel>
-          <DataGrid ItemsSource="{Binding ComparisonRows}" AutoGenerateColumns="False" IsReadOnly="True" MinHeight="180" MaxHeight="260">
+          <DataGrid ItemsSource="{Binding ComparisonRows}" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" MinHeight="180" MaxHeight="260">
             <DataGrid.Columns>
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="App" Binding="{Binding AppName}" Width="180" />
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Before" Binding="{Binding BeforeActiveText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="After" Binding="{Binding AfterActiveText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Active Δ" Binding="{Binding ActiveDeltaText}" Width="120" />
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="CPU Δ" Binding="{Binding CpuDeltaText}" Width="90" />
-              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Net Δ" Binding="{Binding NetDeltaText}" Width="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="App" Binding="{Binding AppName}" Width="Auto" MinWidth="180" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Before" Binding="{Binding BeforeActiveText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="After" Binding="{Binding AfterActiveText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Active Δ" Binding="{Binding ActiveDeltaText}" Width="Auto" MinWidth="120" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="CPU Δ" Binding="{Binding CpuDeltaText}" Width="Auto" MinWidth="90" />
+              <DataGridTextColumn x:DataType="vm:ComparisonRowViewModel" Header="Net Δ" Binding="{Binding NetDeltaText}" Width="Auto" MinWidth="120" />
             </DataGrid.Columns>
           </DataGrid>
         </StackPanel>

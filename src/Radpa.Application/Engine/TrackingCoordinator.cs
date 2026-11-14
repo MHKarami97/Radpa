@@ -421,7 +421,7 @@ public sealed class TrackingCoordinator : IAsyncDisposable
                 }
             }
 
-            var flushInterval = TimeSpan.FromSeconds(Math.Clamp(_settings.FlushIntervalSeconds, 30, 120));
+            var flushInterval = TimeSpan.FromSeconds(Math.Clamp(_settings.FlushIntervalSeconds, 3, 120));
             if (nowUtc - _lastFlushUtc >= flushInterval)
             {
                 flushBatch = BuildFlushBatchLocked(nowUtc);

@@ -106,6 +106,7 @@ public sealed class CompositionRoot : IAsyncDisposable
         _gpuSampler = new WindowsGpuSampler(Logger);
         _networkCollector = new PipeNetworkCollector(ElevationService, InterfaceClassifier, Logger);
 
+        var runtimeSettings = settings with { FlushIntervalSeconds = Math.Clamp(settings.FlushIntervalSeconds, 3, 5) };
         Coordinator = new TrackingCoordinator(
             Clock,
             _processMonitor,
@@ -121,7 +122,7 @@ public sealed class CompositionRoot : IAsyncDisposable
             Notifications,
             Logger,
             FocusManager,
-            settings);
+            runtimeSettings);
 
         return Coordinator;
     }

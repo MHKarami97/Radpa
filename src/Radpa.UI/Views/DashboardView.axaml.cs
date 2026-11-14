@@ -12,6 +12,17 @@ public sealed partial class DashboardView : UserControl
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
+        var grid = this.FindControl<DataGrid>("AppsDataGrid");
+        if (grid is not null)
+        {
+            grid.DoubleTapped += (_, _) =>
+            {
+                if (_boundVm?.SelectedApp is { } app)
+                {
+                    _boundVm.OpenAppDetail(app);
+                }
+            };
+        }
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
@@ -56,5 +67,9 @@ public sealed partial class DashboardView : UserControl
         grid.Columns[8].Header = vm.Loc.ColSent;
         grid.Columns[9].Header = vm.Loc.ColReceived;
         grid.Columns[10].Header = vm.Loc.ColHealth;
+        if (grid.Columns.Count >= 12)
+        {
+            grid.Columns[11].Header = vm.Loc.ViewDetails;
+        }
     }
 }

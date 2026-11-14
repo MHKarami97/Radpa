@@ -58,6 +58,16 @@ public sealed partial class Localizer : ObservableObject
         ? "جهت پایش تفکیکی بسته‌های ارسالی/دریافتی شبکه، برنامه را به‌صورت Run as Administrator اجرا کنید یا ماژول شبکه را در تنظیمات فعال نمایید."
         : "To monitor network sent/received traffic, run as Administrator or enable the network module in Settings.";
     public string AdminRequiredKpiBadge => IsPersian ? "نیازمند دسترسی ادمین" : "Admin required";
+    public string ViewDetails => IsPersian ? "جزئیات" : "Details";
+    public string BackToDashboard => IsPersian ? "بازگشت به داشبورد" : "Back to Dashboard";
+    public string AppDetailTitle => IsPersian ? "شناسنامه و تحلیل عملکرد برنامه" : "Application Footprint & Analytics";
+    public string ChartTimelineSubtitle => IsPersian ? "توزیع زمانی ساعات فعالیت در طول روز" : "Hourly distribution of active application time";
+    public string TimelineUnitBadge => IsPersian ? "زمان بر حسب دقیقه در هر ساعت" : "Duration in minutes per hour";
+    public string AppDetailDestinationsTitle => IsPersian ? "مقصدهای شبکه رصدشده برای این برنامه" : "Network destinations observed for this app";
+    public string AppDetailResourceMetrics => IsPersian ? "شاخص‌های مصرف منابع سیستم" : "Resource Consumption Metrics";
+    public string AppDetailNetworkMetrics => IsPersian ? "شاخص‌های تبادل داده شبکه" : "Network Data Exchange Metrics";
+    public string AppDetailDurations => IsPersian ? "تفکیک زمان‌های استفاده" : "Usage Time Breakdown";
+    public string AppDetailHealthBreakdown => IsPersian ? "تفکیک امتیاز سلامت برنامه" : "Health Score Breakdown";
 
     public string ColApp => IsPersian ? "برنامه" : "Application";
     public string ColOpen => IsPersian ? "زمان باز" : "Open";

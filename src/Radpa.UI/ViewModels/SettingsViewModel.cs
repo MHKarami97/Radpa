@@ -87,7 +87,62 @@ public sealed partial class SettingsViewModel : ObservableObject
     public partial bool MinimizeToTray { get; set; }
 
     [ObservableProperty]
+
     public partial bool DetailedNetworkEnabled { get; set; }
+
+
+    async partial void OnDetailedNetworkEnabledChanged(bool value)
+    {
+        if (value == _current.DetailedNetworkEnabled)
+        {
+            return;
+        }
+
+        if (value)
+        {
+            if (DashboardViewModel.CheckIsAdministrator())
+            {
+                var next = _current with { DetailedNetworkEnabled = true };
+                _current = next;
+                await _settingsStore.SaveAsync(next, CancellationToken.None);
+                await _onSettingsApplied(next);
+                StatusMessage = Loc.IsPersian ? "رصد دقیق شبکه فعال شد." : "Detailed network tracking enabled.";
+                return;
+            }
+
+            StatusMessage = Loc.IsPersian
+                ? "در حال درخواست دسترسی Administrator..."
+                : "Requesting Administrator elevation...";
+
+            var ok = await _networkCollector.EnableElevatedAsync(CancellationToken.None);
+            if (ok)
+            {
+                var next = _current with { DetailedNetworkEnabled = true };
+                _current = next;
+                await _settingsStore.SaveAsync(next, CancellationToken.None);
+                await _onSettingsApplied(next);
+                StatusMessage = Loc.IsPersian
+                    ? "ماژول شبکه با دسترسی Administrator با موفقیت فعال شد."
+                    : "Network tracking elevated and enabled successfully.";
+            }
+            else
+            {
+                DetailedNetworkEnabled = false;
+                StatusMessage = Loc.IsPersian
+                    ? "دسترسی مدیر (UAC) اعطا نشد. جهت فعال‌سازی، برنامه را با دسترسی Administrator اجرا کنید."
+                    : "Administrator elevation was declined. Run Radpa as Administrator to enable.";
+            }
+        }
+        else
+        {
+            await _networkCollector.DisableAsync(CancellationToken.None);
+            var next = _current with { DetailedNetworkEnabled = false };
+            _current = next;
+            await _settingsStore.SaveAsync(next, CancellationToken.None);
+            await _onSettingsApplied(next);
+            StatusMessage = Loc.IsPersian ? "رصد دقیق شبکه غیرفعال شد." : "Detailed network tracking disabled.";
+        }
+    }
 
     [ObservableProperty]
     public partial bool EncryptionEnabled { get; set; }

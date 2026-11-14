@@ -21,7 +21,7 @@ public sealed partial class MainWindow : Window
         viewModel.SelectedTabIndex = 0;
         if (enableAutoRefresh)
         {
-            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
             _refreshTimer.Tick += async (_, _) => await viewModel.RefreshAllAsync();
             _refreshTimer.Start();
             Opened += async (_, _) => await viewModel.RefreshAllAsync();

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Radpa.Application.Abstractions;
@@ -74,7 +75,27 @@ public sealed partial class DashboardViewModel : ObservableObject
     public partial string TotalReceivedText { get; set; } = "0 B";
 
     [ObservableProperty]
+
     public partial string TrackedAppsCountText { get; set; } = "0";
+
+
+    [ObservableProperty]
+    public partial string LastUpdatedText { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool IsAppDetailOpen { get; set; }
+
+    [ObservableProperty]
+    public partial AppMetricRowViewModel? DetailedApp { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<HorizontalBarItem> DetailedAppDurationBars { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<HorizontalBarItem> DetailedAppNetworkBars { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<PrivacyAuditRowViewModel> DetailedAppPrivacyRows { get; set; } = [];
 
     [ObservableProperty]
     public partial AppMetricRowViewModel? SelectedApp { get; set; }
@@ -153,7 +174,20 @@ public sealed partial class DashboardViewModel : ObservableObject
     {
         var range = GetEffectiveRange();
         _lastSnapshot = await _queryService.QueryAsync(range, cancellationToken);
+        var now = _clock.LocalNow;
+        var timeStr = now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+        if (UsePersianDigits)
+        {
+            timeStr = NumberFormatter.ToPersianDigits(timeStr);
+        }
+        LastUpdatedText = Loc.IsPersian ? $"آخرین بروزرسانی: {timeStr}" : $"Last updated: {timeStr}";
         ApplyProjection();
+        if (DetailedApp is not null)
+        {
+            var updated = Rows.FirstOrDefault(r => r.Raw.AppKey == DetailedApp.Raw.AppKey) ?? DetailedApp;
+            DetailedApp = updated;
+            BuildDetailedAppMetrics(updated);
+        }
     }
 
     public void ApplySettings(AppSettings settings)
@@ -240,6 +274,92 @@ public sealed partial class DashboardViewModel : ObservableObject
                 ValueText = $"{NumberFormatter.FormatBytes(n.BytesSent, digits, fa)} / {NumberFormatter.FormatBytes(n.BytesReceived, digits, fa)}",
             })
             .ToArray();
+    }
+
+    [RelayCommand]
+    public void OpenAppDetail(AppMetricRowViewModel? app)
+    {
+        if (app is null)
+        {
+            return;
+        }
+
+        DetailedApp = app;
+        BuildDetailedAppMetrics(app);
+        IsAppDetailOpen = true;
+    }
+
+    [RelayCommand]
+    public void CloseAppDetail()
+    {
+        IsAppDetailOpen = false;
+        DetailedApp = null;
+    }
+
+    public void BuildDetailedAppMetrics(AppMetricRowViewModel app)
+    {
+        var fa = Loc.IsPersian;
+        var digits = UsePersianDigits;
+        var raw = app.Raw;
+
+        DetailedAppDurationBars =
+        [
+            new HorizontalBarItem
+            {
+                Label = Loc.IsPersian ? "زمان فعال (فوکوس)" : "Active (Focused)",
+                PrimaryValue = Math.Max(0.5, raw.ActiveDuration.TotalSeconds),
+                ValueText = NumberFormatter.FormatDuration(raw.ActiveDuration, digits, fa),
+            },
+            new HorizontalBarItem
+            {
+                Label = Loc.IsPersian ? "زمان در صفحه (Visible)" : "On-Screen",
+                PrimaryValue = Math.Max(0.5, raw.OnScreenDuration.TotalSeconds),
+                ValueText = NumberFormatter.FormatDuration(raw.OnScreenDuration, digits, fa),
+            },
+            new HorizontalBarItem
+            {
+                Label = Loc.IsPersian ? "کل زمان باز بودن" : "Total Open",
+                PrimaryValue = Math.Max(0.5, raw.OpenDuration.TotalSeconds),
+                ValueText = NumberFormatter.FormatDuration(raw.OpenDuration, digits, fa),
+            },
+        ];
+
+        DetailedAppNetworkBars =
+        [
+            new HorizontalBarItem
+            {
+                Label = Loc.IsPersian ? "حجم ارسال (Sent)" : "Data Sent",
+                PrimaryValue = Math.Max(1, raw.NetworkSentBytes),
+                ValueText = NumberFormatter.FormatBytes(raw.NetworkSentBytes, digits, fa),
+            },
+            new HorizontalBarItem
+            {
+                Label = Loc.IsPersian ? "حجم دریافت (Received)" : "Data Received",
+                PrimaryValue = Math.Max(1, raw.NetworkReceivedBytes),
+                ValueText = NumberFormatter.FormatBytes(raw.NetworkReceivedBytes, digits, fa),
+            },
+        ];
+
+        if (_lastSnapshot is not null)
+        {
+            DetailedAppPrivacyRows = _lastSnapshot.PrivacyAudit
+                .Where(p => p.AppKey == raw.AppKey)
+                .Select(e => new PrivacyAuditRowViewModel(
+                    e.DisplayName,
+                    $"{e.InterfaceName} ({e.InterfaceKind})",
+                    e.RemoteIp,
+                    string.IsNullOrWhiteSpace(e.RemoteDomain) ? "—" : e.RemoteDomain,
+                    NumberFormatter.FormatBytes(e.BytesSent, digits, fa),
+                    NumberFormatter.FormatBytes(e.BytesReceived, digits, fa),
+                    e.FirstSeenUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
+                    e.IsFirstTimeDestination,
+                    e.IsFirstTimeDestination ? Loc.BadgeNewDestination : string.Empty))
+                .ToList();
+        }
+        else
+        {
+            DetailedAppPrivacyRows = [];
+        }
     }
 
     public static bool CheckIsAdministrator()
