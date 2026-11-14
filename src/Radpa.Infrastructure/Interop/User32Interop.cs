@@ -193,4 +193,7 @@ internal static unsafe partial class User32Interop
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool DestroyIcon(nint hIcon);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    internal static partial nint SendMessageW(nint hWnd, uint msg, nuint wParam, nint lParam);
 }

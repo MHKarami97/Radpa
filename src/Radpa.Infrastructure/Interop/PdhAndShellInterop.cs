@@ -81,6 +81,9 @@ internal static unsafe partial class PdhAndShellInterop
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
     internal static partial uint ExtractIconExW(string lpszFile, int nIconIndex, nint* phiconLarge, nint* phiconSmall, uint nIcons);
 
+    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial int SetCurrentProcessExplicitAppUserModelID(string AppID);
+
     [LibraryImport("iphlpapi.dll")]
     internal static partial uint GetBestInterfaceEx(byte* pDestAddr, out uint pdwBestIfIndex);
 }

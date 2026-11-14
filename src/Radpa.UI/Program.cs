@@ -14,6 +14,7 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        Win32TrayHost.SetAppUserModelId();
         if (args.Contains("--smoke", StringComparer.OrdinalIgnoreCase))
         {
             return RunSmokeCheck();

@@ -97,22 +97,88 @@ public sealed unsafe class Win32TrayHost : IDisposable
         }
     }
 
-    private void RunTrayLoop(ManualResetEventSlim ready)
+    public static void SetAppUserModelId(string appId = "Radpa.App")
     {
-        var className = $"RadpaTrayClass_{Environment.ProcessId}";
-        fixed (char* clsPtr = className)
+        if (OperatingSystem.IsWindows())
         {
-            var wc = new User32Interop.WndClassExW
+            try
             {
-                CbSize = (uint)sizeof(User32Interop.WndClassExW),
-                LpfnWndProc = &WndProc,
-                LpszClassName = clsPtr,
-            };
-            User32Interop.RegisterClassExW(ref wc);
+                PdhAndShellInterop.SetCurrentProcessExplicitAppUserModelID(appId);
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    public static void ApplyWindowIcon(nint hwnd, string? iconPath = null)
+    {
+        if (!OperatingSystem.IsWindows() || hwnd == 0)
+        {
+            return;
         }
 
-        _hwnd = User32Interop.CreateWindowExW(0, className, "RadpaTray", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        try
+        {
+            var path = iconPath;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            {
+                path = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "radpa.ico");
+                if (!File.Exists(path))
+                {
+                    var alt = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Assets", "Icons", "radpa.ico");
+                    if (File.Exists(alt))
+                    {
+                        path = Path.GetFullPath(alt);
+                    }
+                }
+            }
 
+            nint hIconBig = 0;
+            nint hIconSmall = 0;
+
+            if (File.Exists(path))
+            {
+                hIconBig = User32Interop.LoadImageW(0, path, ImageIcon, 32, 32, LrLoadFromFile);
+                hIconSmall = User32Interop.LoadImageW(0, path, ImageIcon, 16, 16, LrLoadFromFile);
+            }
+
+            if (hIconBig == 0 || hIconSmall == 0)
+            {
+                var exe = Environment.ProcessPath;
+                if (!string.IsNullOrEmpty(exe) && File.Exists(exe))
+                {
+                    nint hBig = 0;
+                    nint hSmall = 0;
+                    PdhAndShellInterop.ExtractIconExW(exe, 0, &hBig, &hSmall, 1);
+                    if (hIconBig == 0 && hBig != 0)
+                    {
+                        hIconBig = hBig;
+                    }
+                    if (hIconSmall == 0 && hSmall != 0)
+                    {
+                        hIconSmall = hSmall;
+                    }
+                }
+            }
+
+            const uint wmSetIcon = 0x0080;
+            if (hIconBig != 0)
+            {
+                User32Interop.SendMessageW(hwnd, wmSetIcon, 1, hIconBig);
+            }
+            if (hIconSmall != 0)
+            {
+                User32Interop.SendMessageW(hwnd, wmSetIcon, 0, hIconSmall);
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    private void RunTrayLoop(ManualResetEventSlim ready)
+    {
         if (!string.IsNullOrWhiteSpace(_iconPath) && File.Exists(_iconPath))
         {
             _hIcon = User32Interop.LoadImageW(0, _iconPath, ImageIcon, 16, 16, LrLoadFromFile);
@@ -131,6 +197,24 @@ public sealed unsafe class Win32TrayHost : IDisposable
                 }
             }
         }
+
+        var className = $"RadpaTrayClass_{Environment.ProcessId}";
+        fixed (char* clsPtr = className)
+        {
+            var wc = new User32Interop.WndClassExW
+            {
+                CbSize = (uint)sizeof(User32Interop.WndClassExW),
+                LpfnWndProc = &WndProc,
+                LpszClassName = clsPtr,
+                HIcon = _hIcon,
+                HIconSm = _hIcon,
+            };
+            User32Interop.RegisterClassExW(ref wc);
+        }
+
+        const uint wsPopup = 0x80000000;
+        const uint wsExToolWindow = 0x00000080;
+        _hwnd = User32Interop.CreateWindowExW(wsExToolWindow, className, "RadpaTray", wsPopup, 0, 0, 0, 0, 0, 0, 0, 0);
 
         var nid = CreateBaseIconData();
         nid.UFlags = PdhAndShellInterop.NifMessage | PdhAndShellInterop.NifTip | (_hIcon != 0 ? PdhAndShellInterop.NifIcon : 0u);

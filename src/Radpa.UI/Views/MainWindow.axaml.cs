@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Radpa.Infrastructure.Platform;
 using Radpa.UI.ViewModels;
 
 namespace Radpa.UI.Views;
@@ -19,6 +20,14 @@ public sealed partial class MainWindow : Window
         DataContext = viewModel;
         WindowState = WindowState.Maximized;
         viewModel.SelectedTabIndex = 0;
+        Opened += (_, _) =>
+        {
+            var hwnd = TryGetPlatformHandle()?.Handle ?? 0;
+            if (hwnd != 0)
+            {
+                Win32TrayHost.ApplyWindowIcon(hwnd);
+            }
+        };
         if (enableAutoRefresh)
         {
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
