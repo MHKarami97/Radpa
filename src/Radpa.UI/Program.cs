@@ -182,7 +182,31 @@ internal static class Program
         coordinator.StartAsync(CancellationToken.None).GetAwaiter().GetResult();
         var vm = root.Instance.BuildMainWindowViewModel(settings, s => coordinator.UpdateSettings(s));
 
-        return AppBuilder.Configure<App>()
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "radpa.ico");
+        using var tray = new Win32TrayHost(
+            onOpenUi: () =>
+            {
+                if (global::Avalonia.Application.Current?.ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop &&
+                    desktop.MainWindow is { } win)
+                {
+                    win.WindowState = global::Avalonia.Controls.WindowState.Normal;
+                    win.Activate();
+                }
+            },
+            onExit: () =>
+            {
+                if (global::Avalonia.Application.Current?.ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    desktop.Shutdown();
+                }
+            },
+            tooltip: "ردپا | Radpa",
+            iconPath: File.Exists(iconPath) ? iconPath : null);
+
+        root.Instance.Notifications.AttachHandler((title, msg, sev) => tray.ShowBalloon(title, msg, sev));
+        tray.Start();
+
+        var exitCode = AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .AfterSetup(builder =>
             {
@@ -192,6 +216,9 @@ internal static class Program
                 }
             })
             .StartWithClassicDesktopLifetime(args);
+
+        tray.Stop();
+        return exitCode;
     }
 
     private static void EnsureCollectorRunning()

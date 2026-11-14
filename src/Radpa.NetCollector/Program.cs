@@ -38,6 +38,9 @@ internal static class Program
         var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
         pipeSecurity.AddAccessRule(new PipeAccessRule(adminSid, PipeAccessRights.FullControl, AccessControlType.Allow));
 
+        var authUsersSid = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+        pipeSecurity.AddAccessRule(new PipeAccessRule(authUsersSid, PipeAccessRights.ReadWrite, AccessControlType.Allow));
+
         using var cts = new CancellationTokenSource();
         if (int.TryParse(parentPidStr, NumberStyles.None, CultureInfo.InvariantCulture, out var parentPid) && parentPid > 0)
         {
@@ -92,17 +95,27 @@ internal static class Program
 
     private static async Task WatchParentAsync(int parentPid, CancellationTokenSource cts)
     {
+        Process? proc = null;
         try
         {
-            using var proc = Process.GetProcessById(parentPid);
-            await proc.WaitForExitAsync(cts.Token);
+            proc = Process.GetProcessById(parentPid);
         }
         catch
         {
+            return;
         }
-        finally
+
+        try
         {
+            using (proc)
+            {
+                await proc.WaitForExitAsync(cts.Token);
+            }
+
             await cts.CancelAsync();
+        }
+        catch
+        {
         }
     }
 

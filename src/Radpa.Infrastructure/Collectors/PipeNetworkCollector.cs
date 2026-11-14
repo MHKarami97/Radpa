@@ -97,19 +97,24 @@ public sealed class PipeNetworkCollector : INetworkCollector
 
     private async Task RunPipeClientLoopAsync(CancellationToken ct)
     {
-        // Give the UAC-elevated helper a brief window to initialize its named pipe server
-        for (var attempt = 0; attempt < 20 && !ct.IsCancellationRequested; attempt++)
+        var attempt = 0;
+        while (!ct.IsCancellationRequested)
         {
             try
             {
                 using var pipe = new NamedPipeClientStream(".", _pipeName, PipeDirection.In, PipeOptions.Asynchronous);
-                await pipe.ConnectAsync(500, ct);
+                await pipe.ConnectAsync(1000, ct);
                 _logger.Info($"Connected to elevated network collector pipe '{_pipeName}'.");
+                attempt = 0;
                 await ReadFramesAsync(pipe, ct);
-                return;
             }
             catch (TimeoutException)
             {
+                attempt++;
+                if (attempt % 10 == 0)
+                {
+                    _logger.Warning($"Waiting for network collector helper pipe '{_pipeName}' (attempt {attempt})...");
+                }
             }
             catch (OperationCanceledException)
             {
@@ -117,9 +122,10 @@ public sealed class PipeNetworkCollector : INetworkCollector
             }
             catch (Exception ex)
             {
+                attempt++;
                 LastError = ex.Message;
-                _logger.Warning($"Network pipe reconnect attempt {attempt + 1}: {ex.Message}");
-                await Task.Delay(300, ct);
+                _logger.Warning($"Network pipe error (attempt {attempt}): {ex.Message}");
+                await Task.Delay(500, ct);
             }
         }
     }

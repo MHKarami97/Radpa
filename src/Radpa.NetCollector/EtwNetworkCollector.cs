@@ -26,7 +26,7 @@ internal sealed class EtwNetworkCollector : IDisposable
             StopOnDispose = true,
         };
 
-        _session.EnableProvider(KernelNetworkProviderGuid, TraceEventLevel.Informational, KeywordIpv4 | KeywordIpv6);
+        _session.EnableProvider(KernelNetworkProviderGuid, TraceEventLevel.Informational);
         _session.Source.Dynamic.All += OnEvent;
         _processTask = Task.Run(() => _session.Source.Process());
     }
@@ -103,23 +103,29 @@ internal sealed class EtwNetworkCollector : IDisposable
             return;
         }
 
-        var eventName = data.EventName;
-        if (string.IsNullOrEmpty(eventName))
-        {
-            return;
-        }
+        var id = (int)data.ID;
+        var opcode = (int)data.Opcode;
+        var eventName = data.EventName ?? string.Empty;
 
-        var isSend = eventName.Contains("Send", StringComparison.OrdinalIgnoreCase);
-        var isRecv = !isSend && eventName.Contains("Recv", StringComparison.OrdinalIgnoreCase);
+        var isSend = id is 10 or 26 or 42 or 58 ||
+                     opcode is 10 or 42 ||
+                     eventName.Contains("Send", StringComparison.OrdinalIgnoreCase);
+
+        var isRecv = !isSend && (
+                     id is 11 or 27 or 43 or 59 ||
+                     opcode is 11 or 43 ||
+                     eventName.Contains("Recv", StringComparison.OrdinalIgnoreCase) ||
+                     eventName.Contains("Receiv", StringComparison.OrdinalIgnoreCase));
+
         if (!isSend && !isRecv)
         {
             return;
         }
 
-        byte protocol = eventName.Contains("Tcp", StringComparison.OrdinalIgnoreCase)
-            ? (byte)1
-            : eventName.Contains("Udp", StringComparison.OrdinalIgnoreCase)
-                ? (byte)2
+        byte protocol = (id is 42 or 43 or 58 or 59 || opcode is 42 or 43 || eventName.Contains("Udp", StringComparison.OrdinalIgnoreCase))
+            ? (byte)2
+            : (id is 10 or 11 or 26 or 27 || opcode is 10 or 11 || eventName.Contains("Tcp", StringComparison.OrdinalIgnoreCase))
+                ? (byte)1
                 : (byte)0;
 
         if (protocol == 0)
