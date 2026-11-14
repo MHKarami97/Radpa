@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -52,6 +53,8 @@ public sealed partial class SettingsViewModel : ObservableObject
         _getLatestSnapshot = getLatestSnapshot;
 
         LoadFromSettings(initial);
+        AppVersionText = CompositionRoot.GetAppVersion().ToString();
+        RefreshSelfMetrics();
     }
 
     public Localizer Loc { get; }
@@ -162,6 +165,30 @@ public sealed partial class SettingsViewModel : ObservableObject
     public partial string SelfMonitorText { get; set; } = string.Empty;
 
     [ObservableProperty]
+    public partial string SelfCpuText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string SelfRamText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string SelfPrivateBytesText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string SelfThreadCountText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string SelfProcessIdText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string AppVersionText { get; set; } = "1.0.4";
+
+    [ObservableProperty]
+    public partial string NetworkHelperStatusText { get; set; } = "—";
+
+    [ObservableProperty]
+    public partial string UpdateStatusText { get; set; } = string.Empty;
+
+    [ObservableProperty]
     public partial string NewGroupPattern { get; set; } = string.Empty;
 
     [ObservableProperty]
@@ -169,15 +196,34 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public ObservableCollection<GroupingRule> GroupingRules { get; } = [];
 
+    [RelayCommand]
     public void RefreshSelfMetrics()
     {
         var snap = _selfMetrics.Capture();
         var fa = Loc.IsPersian;
-        var cpu = NumberFormatter.FormatPercent(snap.CpuPercent, UsePersianDigits);
-        var ram = NumberFormatter.FormatBytes(snap.WorkingSetBytes, UsePersianDigits, fa);
+        var digits = UsePersianDigits;
+        SelfCpuText = NumberFormatter.FormatPercent(snap.CpuPercent, digits, "0.0%");
+        SelfRamText = NumberFormatter.FormatBytes(snap.WorkingSetBytes, digits, fa);
+        SelfPrivateBytesText = NumberFormatter.FormatBytes(snap.PrivateBytes, digits, fa);
+        SelfProcessIdText = NumberFormatter.FormatInteger(Environment.ProcessId, digits);
+
+        try
+        {
+            using var proc = Process.GetCurrentProcess();
+            SelfThreadCountText = NumberFormatter.FormatInteger(proc.Threads.Count, digits);
+        }
+        catch
+        {
+            SelfThreadCountText = "—";
+        }
+
+        NetworkHelperStatusText = DashboardViewModel.CheckIsAdministrator() || DetailedNetworkEnabled
+            ? Loc.SettingsHelperActive
+            : Loc.SettingsHelperInactive;
+
         SelfMonitorText = fa
-            ? $"CPU ردپا: {cpu} | رم مصرفی: {ram}"
-            : $"Radpa CPU: {cpu} | RAM: {ram}";
+            ? $"CPU ردپا: {SelfCpuText} | رم مصرفی: {SelfRamText}"
+            : $"Radpa CPU: {SelfCpuText} | RAM: {SelfRamText}";
     }
 
     public async Task RefreshStorageSizeAsync(CancellationToken ct)
@@ -295,7 +341,19 @@ public sealed partial class SettingsViewModel : ObservableObject
     public void RemoveGroupingRule(GroupingRule rule) => GroupingRules.Remove(rule);
 
     [RelayCommand]
-    public Task CheckForUpdatesNowAsync() => _onCheckUpdatesNow();
+    public async Task CheckForUpdatesNowAsync()
+    {
+        UpdateStatusText = Loc.IsPersian ? "در حال بررسی مخزن گیت‌هاب..." : "Checking GitHub releases...";
+        try
+        {
+            await _onCheckUpdatesNow();
+            UpdateStatusText = Loc.IsPersian ? "بررسی انجام شد." : "Update check completed.";
+        }
+        catch (Exception ex)
+        {
+            UpdateStatusText = Loc.IsPersian ? $"خطا در بررسی: {ex.Message}" : $"Check failed: {ex.Message}";
+        }
+    }
 
     [RelayCommand]
     public async Task ExportCsvAsync() => await WriteExportFileAsync("csv", snap => ReportExporter.ToCsv(snap));

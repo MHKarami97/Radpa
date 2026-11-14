@@ -79,6 +79,15 @@ internal static class Program
 
         using var exitCts = new CancellationTokenSource();
         var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "radpa.ico");
+        if (!File.Exists(iconPath))
+        {
+            var alt = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Assets", "Icons", "radpa.ico");
+            if (File.Exists(alt))
+            {
+                iconPath = Path.GetFullPath(alt);
+            }
+        }
+
         using var tray = new Win32TrayHost(
             onOpenUi: SpawnUiProcess,
             onExit: () => exitCts.Cancel(),
@@ -183,6 +192,15 @@ internal static class Program
         var vm = root.Instance.BuildMainWindowViewModel(settings, s => coordinator.UpdateSettings(s));
 
         var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Icons", "radpa.ico");
+        if (!File.Exists(iconPath))
+        {
+            var alt = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Assets", "Icons", "radpa.ico");
+            if (File.Exists(alt))
+            {
+                iconPath = Path.GetFullPath(alt);
+            }
+        }
+
         using var tray = new Win32TrayHost(
             onOpenUi: () =>
             {

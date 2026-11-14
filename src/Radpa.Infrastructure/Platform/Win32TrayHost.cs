@@ -115,7 +115,21 @@ public sealed unsafe class Win32TrayHost : IDisposable
 
         if (!string.IsNullOrWhiteSpace(_iconPath) && File.Exists(_iconPath))
         {
-            _hIcon = User32Interop.LoadImageW(0, _iconPath, ImageIcon, 16, 16, LrLoadFromFile | LrDefaultSize);
+            _hIcon = User32Interop.LoadImageW(0, _iconPath, ImageIcon, 16, 16, LrLoadFromFile);
+        }
+
+        if (_hIcon == 0)
+        {
+            var exe = Environment.ProcessPath;
+            if (!string.IsNullOrEmpty(exe) && File.Exists(exe))
+            {
+                nint hSmall = 0;
+                PdhAndShellInterop.ExtractIconExW(exe, 0, null, &hSmall, 1);
+                if (hSmall != 0)
+                {
+                    _hIcon = hSmall;
+                }
+            }
         }
 
         var nid = CreateBaseIconData();

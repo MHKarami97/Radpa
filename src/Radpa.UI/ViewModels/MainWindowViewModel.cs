@@ -78,6 +78,11 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         if (int.TryParse(indexStr, NumberStyles.Integer, CultureInfo.InvariantCulture, out var idx))
         {
+            if (idx == 0)
+            {
+                Dashboard.CloseAppDetail();
+            }
+
             SelectedTabIndex = idx;
         }
     }

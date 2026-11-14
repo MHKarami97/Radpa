@@ -187,7 +187,30 @@ public sealed partial class Localizer : ObservableObject
     public string SettingsEncryption => IsPersian ? "رمزگذاری فیلدهای حساس (AES-GCM + DPAPI)" : "Encrypt sensitive fields (AES-GCM + DPAPI)";
     public string SettingsGroupingRules => IsPersian ? "قوانین گروه‌بندی چندفرایندی" : "Multi-Process Grouping Rules";
     public string SettingsDataAndExport => IsPersian ? "خروجی، نگهداری و پایش خودکار" : "Export, Data Controls & Self-Monitor";
-    public string SettingsCheckUpdate => IsPersian ? "بررسی بروزرسانی گیت‌هاب" : "Check GitHub Updates";
+    public string SettingsCheckUpdate => IsPersian ? "بررسی نسخه جدید گیت‌هاب" : "Check GitHub Updates";
+    public string SettingsUpdatesTitle => IsPersian ? "بروزرسانی نرم‌افزار و مخزن" : "Software Updates & Releases";
+    public string SettingsUpdatesDesc => IsPersian
+        ? "بررسی خودکار و دستی نسخه‌های جدید منتشرشده در مخزن گیت‌هاب برنامه."
+        : "Automatic and manual checks for new Radpa releases on GitHub.";
+    public string SettingsAutoUpdateCheck => IsPersian ? "بررسی خودکار نسخه‌های جدید در گیت‌هاب" : "Check for updates automatically";
+    public string SettingsCurrentVersionPrefix => IsPersian ? "نسخه جاری: " : "Current version: ";
+
+    public string SettingsSelfMonitorTitle => IsPersian ? "شناسنامه و مصرف منابع خود نرم‌افزار (Self-Monitor)" : "Radpa Self-Monitor & Footprint";
+    public string SettingsSelfMonitorDesc => IsPersian
+        ? "پایش زنده و شفاف مصرف پردازنده، حافظه رم و پایگاه داده توسط خود ردپا در سیستم شما."
+        : "Live, transparent resource footprint and memory consumption of Radpa on your machine.";
+    public string SettingsSelfCpu => IsPersian ? "پردازنده ردپا" : "Radpa CPU";
+    public string SettingsSelfRam => IsPersian ? "رم در حال استفاده (Working Set)" : "Working Set RAM";
+    public string SettingsSelfPrivate => IsPersian ? "حافظه اختصاصی (Private)" : "Private Memory";
+    public string SettingsSelfDb => IsPersian ? "حجم پایگاه داده" : "Database Size";
+    public string SettingsSelfThreads => IsPersian ? "تعداد نخ‌ها" : "Threads";
+    public string SettingsSelfPid => IsPersian ? "شناسه فرآیند (PID)" : "Process ID";
+    public string SettingsSelfNetworkHelper => IsPersian ? "ماژول ناظر شبکه" : "Network Helper";
+    public string SettingsHelperActive => IsPersian ? "فعال (دسترسی مدیر)" : "Active (Elevated)";
+    public string SettingsHelperInactive => IsPersian ? "غیرفعال (کاربر استاندارد)" : "Inactive (Standard)";
+    public string SettingsBtnRefreshSelf => IsPersian ? "بروزرسانی مصرف" : "Refresh Metrics";
+    public string SettingsDataControlsTitle => IsPersian ? "کنترل داده‌ها، خروجی و پشتیبان‌گیری" : "Data Controls, Export & Maintenance";
+
     public string BtnSaveSettings => IsPersian ? "ذخیره تنظیمات" : "Save Settings";
     public string BtnExportCsv => IsPersian ? "خروجی CSV" : "Export CSV";
     public string BtnExportJson => IsPersian ? "خروجی JSON" : "Export JSON";

@@ -78,6 +78,9 @@ internal static unsafe partial class PdhAndShellInterop
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool Shell_NotifyIconW(uint dwMessage, ref NotifyIconDataW lpData);
 
+    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial uint ExtractIconExW(string lpszFile, int nIconIndex, nint* phiconLarge, nint* phiconSmall, uint nIcons);
+
     [LibraryImport("iphlpapi.dll")]
     internal static partial uint GetBestInterfaceEx(byte* pDestAddr, out uint pdwBestIfIndex);
 }

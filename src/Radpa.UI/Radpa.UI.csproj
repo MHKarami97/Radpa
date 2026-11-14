@@ -49,6 +49,9 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\Fonts\Vazirmatn-UI-*.ttf" />
     <AvaloniaResource Include="Assets\Icons\radpa.ico" />
+    <Content Include="Assets\Icons\radpa.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <TrimmerRootDescriptor Include="ILLink.Descriptors.xml" />
   </ItemGroup>
   <ItemGroup>

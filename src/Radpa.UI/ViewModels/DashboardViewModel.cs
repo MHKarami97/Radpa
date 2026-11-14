@@ -214,12 +214,13 @@ public sealed partial class DashboardViewModel : ObservableObject
         TotalActiveText = NumberFormatter.FormatDuration(_lastSnapshot.TotalActive, digits, fa);
         TotalSentText = NumberFormatter.FormatBytes(_lastSnapshot.TotalNetworkSent, digits, fa);
         TotalReceivedText = NumberFormatter.FormatBytes(_lastSnapshot.TotalNetworkReceived, digits, fa);
-        TrackedAppsCountText = NumberFormatter.FormatInteger(_lastSnapshot.Apps.Count, digits);
+        var userApps = _lastSnapshot.Apps.Where(a => !IsRadpaApp(a)).ToList();
+        TrackedAppsCountText = NumberFormatter.FormatInteger(userApps.Count, digits);
 
         var query = SearchText.Trim();
         var filtered = string.IsNullOrEmpty(query)
-            ? _lastSnapshot.Apps
-            : _lastSnapshot.Apps
+            ? userApps
+            : userApps
                 .Where(a => a.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                             a.ExecutablePath.Contains(query, StringComparison.OrdinalIgnoreCase))
                 .ToList();
@@ -254,7 +255,7 @@ public sealed partial class DashboardViewModel : ObservableObject
 
         TimelineBuckets = _lastSnapshot.Timeline;
 
-        TopAppBars = _lastSnapshot.Apps
+        TopAppBars = userApps
             .Take(6)
             .Select(a =>
             {
@@ -402,6 +403,20 @@ public sealed partial class DashboardViewModel : ObservableObject
             DetailedAppPrivacyRows = [];
         }
     }
+
+    public static bool IsRadpaApp(AppAggregateStats app)
+    {
+        var name = app.DisplayName;
+        var path = app.ExecutablePath;
+        var key = app.AppKey.Value;
+        return name.Equals("Radpa", StringComparison.OrdinalIgnoreCase)
+            || name.StartsWith("Radpa.", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith("Radpa.exe", StringComparison.OrdinalIgnoreCase)
+            || path.EndsWith("Radpa.NetCollector.exe", StringComparison.OrdinalIgnoreCase)
+            || key.Contains("radpa", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public AppAggregateStats? RadpaSelfStats => _lastSnapshot?.Apps.FirstOrDefault(IsRadpaApp);
 
     private static string LocalizeInterfaceKind(NetworkInterfaceKind kind) => kind switch
     {
