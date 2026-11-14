@@ -174,4 +174,68 @@ public sealed class TrackingCoordinatorTests
         alerts[0].Metric.Should().Be(AnomalyMetricKind.CpuPercent);
         alerts[0].ObservedValue.Should().Be(92.0);
     }
+
+    [Fact]
+    public async Task StartAsync_WhenDetailedNetworkEnabled_EnablesNetworkCollector()
+    {
+        var clock = Substitute.For<IClock>();
+        var procMonitor = Substitute.For<IProcessMonitor>();
+        procMonitor.GetRunningProcesses().Returns([]);
+        var fgMonitor = Substitute.For<IForegroundMonitor>();
+        var idleProvider = Substitute.For<IIdleTimeProvider>();
+        var sysState = Substitute.For<ISystemStateMonitor>();
+        var resourceSampler = Substitute.For<IResourceSampler>();
+        var gpuSampler = Substitute.For<IGpuSampler>();
+        var netCollector = Substitute.For<INetworkCollector>();
+        var repo = Substitute.For<IUsageRepository>();
+        var encryption = Substitute.For<IEncryptionService>();
+        var dnsCache = Substitute.For<IDnsResolverCache>();
+        var notifications = Substitute.For<INotificationService>();
+        var logger = Substitute.For<IAppLogger>();
+        var focus = new FocusSessionManager(clock, notifications);
+
+        await using var coordinator = new TrackingCoordinator(
+            clock, procMonitor, fgMonitor, idleProvider, sysState,
+            resourceSampler, gpuSampler, netCollector, repo, encryption, dnsCache, notifications, logger, focus,
+            new AppSettings { DetailedNetworkEnabled = true });
+
+        await coordinator.StartAsync(TestContext.Current.CancellationToken);
+
+        await netCollector.Received(1).EnableElevatedAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UpdateSettings_TogglesNetworkCollector()
+    {
+        var clock = Substitute.For<IClock>();
+        var procMonitor = Substitute.For<IProcessMonitor>();
+        procMonitor.GetRunningProcesses().Returns([]);
+        var fgMonitor = Substitute.For<IForegroundMonitor>();
+        var idleProvider = Substitute.For<IIdleTimeProvider>();
+        var sysState = Substitute.For<ISystemStateMonitor>();
+        var resourceSampler = Substitute.For<IResourceSampler>();
+        var gpuSampler = Substitute.For<IGpuSampler>();
+        var netCollector = Substitute.For<INetworkCollector>();
+        var repo = Substitute.For<IUsageRepository>();
+        var encryption = Substitute.For<IEncryptionService>();
+        var dnsCache = Substitute.For<IDnsResolverCache>();
+        var notifications = Substitute.For<INotificationService>();
+        var logger = Substitute.For<IAppLogger>();
+        var focus = new FocusSessionManager(clock, notifications);
+
+        await using var coordinator = new TrackingCoordinator(
+            clock, procMonitor, fgMonitor, idleProvider, sysState,
+            resourceSampler, gpuSampler, netCollector, repo, encryption, dnsCache, notifications, logger, focus,
+            new AppSettings { DetailedNetworkEnabled = false });
+
+        await coordinator.StartAsync(TestContext.Current.CancellationToken);
+
+        await netCollector.DidNotReceive().EnableElevatedAsync(Arg.Any<CancellationToken>());
+
+        coordinator.UpdateSettings(new AppSettings { DetailedNetworkEnabled = true });
+        await netCollector.Received(1).EnableElevatedAsync(Arg.Any<CancellationToken>());
+
+        coordinator.UpdateSettings(new AppSettings { DetailedNetworkEnabled = false });
+        await netCollector.Received(1).DisableAsync(Arg.Any<CancellationToken>());
+    }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Threading.Channels;
 using Radpa.Application.Abstractions;
 using Radpa.Application.Options;
@@ -123,6 +124,18 @@ public sealed class TrackingCoordinator : IAsyncDisposable
         await _systemStateMonitor.StartAsync(_cts.Token);
         await _networkCollector.StartAsync(_cts.Token);
 
+        if (_settings.DetailedNetworkEnabled)
+        {
+            try
+            {
+                await _networkCollector.EnableElevatedAsync(_cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.Warning($"Could not auto-start elevated network collector on startup: {ex.Message}");
+            }
+        }
+
         lock (_sync)
         {
             foreach (var proc in _processMonitor.GetRunningProcesses())
@@ -146,8 +159,12 @@ public sealed class TrackingCoordinator : IAsyncDisposable
     public void UpdateSettings(AppSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
+        bool networkToggled;
+        bool networkEnabled;
         lock (_sync)
         {
+            networkToggled = settings.DetailedNetworkEnabled != _settings.DetailedNetworkEnabled;
+            networkEnabled = settings.DetailedNetworkEnabled;
             _settings = settings;
             _groupingResolver = new GroupingResolver(settings.GroupingRules);
             _projectMatcher = new ProjectTagMatcher(settings.ProjectRules);
@@ -157,6 +174,18 @@ public sealed class TrackingCoordinator : IAsyncDisposable
                 var identity = _groupingResolver.Resolve(entry.Process.ExecutablePath, entry.Process.PackageFamilyName, entry.Process.ProductName);
                 entry.Identity = identity;
                 _knownApps[identity.Key] = identity;
+            }
+        }
+
+        if (networkToggled)
+        {
+            if (networkEnabled)
+            {
+                _ = _networkCollector.EnableElevatedAsync(_cts?.Token ?? CancellationToken.None);
+            }
+            else
+            {
+                _ = _networkCollector.DisableAsync(CancellationToken.None);
             }
         }
     }
@@ -502,7 +531,25 @@ public sealed class TrackingCoordinator : IAsyncDisposable
         {
             if (!_processes.TryGetValue(item.ProcessId, out var proc))
             {
-                continue;
+                try
+                {
+                    using var p = Process.GetProcessById(item.ProcessId);
+                    var exePath = p.MainModule?.FileName;
+                    if (!string.IsNullOrWhiteSpace(exePath))
+                    {
+                        var info = new ProcessInfo(item.ProcessId, exePath, null, p.ProcessName, _clock.UtcNow);
+                        RegisterProcessLocked(info);
+                        _processes.TryGetValue(item.ProcessId, out proc);
+                    }
+                }
+                catch
+                {
+                }
+
+                if (proc is null)
+                {
+                    continue;
+                }
             }
 
             if (_pendingNetwork.Count >= MaxPendingNetworkBuckets)

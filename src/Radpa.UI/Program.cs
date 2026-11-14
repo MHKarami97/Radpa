@@ -24,7 +24,7 @@ internal static class Program
             return RunCollectorHostAsync().GetAwaiter().GetResult();
         }
 
-        if (args.Contains("--single-process", StringComparer.OrdinalIgnoreCase))
+        if (Debugger.IsAttached || args.Contains("--single-process", StringComparer.OrdinalIgnoreCase))
         {
             return RunSingleProcessUi(args);
         }
@@ -116,15 +116,22 @@ internal static class Program
 
     private static async Task RunMaintenanceLoopAsync(CompositionRoot root, AppSettings settings, CancellationToken ct)
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(3));
+        var lastRetentionUtc = DateTimeOffset.UtcNow;
         while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync(ct))
         {
             try
             {
                 var latestSettings = await root.SettingsStore.LoadAsync(ct);
                 root.Coordinator?.UpdateSettings(latestSettings);
-                var cutoff = DateTimeOffset.UtcNow.AddDays(-Math.Max(1, latestSettings.RetentionDays));
-                await root.Repository.ApplyRetentionAsync(cutoff, ct);
+
+                var now = DateTimeOffset.UtcNow;
+                if (now - lastRetentionUtc >= TimeSpan.FromHours(1))
+                {
+                    lastRetentionUtc = now;
+                    var cutoff = now.AddDays(-Math.Max(1, latestSettings.RetentionDays));
+                    await root.Repository.ApplyRetentionAsync(cutoff, ct);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -196,19 +203,12 @@ internal static class Program
         }
 
         probe.Dispose();
-        var exe = Environment.ProcessPath;
-        if (string.IsNullOrWhiteSpace(exe))
-        {
-            return;
-        }
-
         try
         {
-            Process.Start(new ProcessStartInfo(exe, "--collector")
-            {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            });
+            var psi = CreateChildProcessStartInfo("--collector");
+            psi.CreateNoWindow = true;
+            psi.WindowStyle = ProcessWindowStyle.Hidden;
+            Process.Start(psi);
         }
         catch
         {
@@ -217,22 +217,33 @@ internal static class Program
 
     private static void SpawnUiProcess()
     {
-        var exe = Environment.ProcessPath;
-        if (string.IsNullOrWhiteSpace(exe))
-        {
-            return;
-        }
-
         try
         {
-            Process.Start(new ProcessStartInfo(exe, "--ui")
-            {
-                UseShellExecute = false,
-            });
+            var psi = CreateChildProcessStartInfo("--ui");
+            Process.Start(psi);
         }
         catch
         {
         }
+    }
+
+    private static ProcessStartInfo CreateChildProcessStartInfo(string arguments)
+    {
+        var exe = Environment.ProcessPath ?? string.Empty;
+        var fileName = Path.GetFileNameWithoutExtension(exe);
+        if (fileName.Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+        {
+            var dllPath = Path.Combine(AppContext.BaseDirectory, "Radpa.dll");
+            return new ProcessStartInfo(exe, $"exec \"{dllPath}\" {arguments}")
+            {
+                UseShellExecute = false,
+            };
+        }
+
+        return new ProcessStartInfo(exe, arguments)
+        {
+            UseShellExecute = false,
+        };
     }
 
     private static SyncDisposableWrapper<T> AsSyncDisposable<T>(this T instance)

@@ -100,19 +100,10 @@ public sealed partial class SettingsViewModel : ObservableObject
 
         if (value)
         {
-            if (DashboardViewModel.CheckIsAdministrator())
-            {
-                var next = _current with { DetailedNetworkEnabled = true };
-                _current = next;
-                await _settingsStore.SaveAsync(next, CancellationToken.None);
-                await _onSettingsApplied(next);
-                StatusMessage = Loc.IsPersian ? "رصد دقیق شبکه فعال شد." : "Detailed network tracking enabled.";
-                return;
-            }
-
+            var isAdmin = DashboardViewModel.CheckIsAdministrator();
             StatusMessage = Loc.IsPersian
-                ? "در حال درخواست دسترسی Administrator..."
-                : "Requesting Administrator elevation...";
+                ? (isAdmin ? "در حال راه‌اندازی ماژول رصد شبکه..." : "در حال درخواست دسترسی Administrator...")
+                : (isAdmin ? "Starting network tracking module..." : "Requesting Administrator elevation...");
 
             var ok = await _networkCollector.EnableElevatedAsync(CancellationToken.None);
             if (ok)
@@ -122,15 +113,15 @@ public sealed partial class SettingsViewModel : ObservableObject
                 await _settingsStore.SaveAsync(next, CancellationToken.None);
                 await _onSettingsApplied(next);
                 StatusMessage = Loc.IsPersian
-                    ? "ماژول شبکه با دسترسی Administrator با موفقیت فعال شد."
-                    : "Network tracking elevated and enabled successfully.";
+                    ? "ماژول شبکه با موفقیت فعال شد."
+                    : "Network tracking enabled successfully.";
             }
             else
             {
                 DetailedNetworkEnabled = false;
                 StatusMessage = Loc.IsPersian
-                    ? "دسترسی مدیر (UAC) اعطا نشد. جهت فعال‌سازی، برنامه را با دسترسی Administrator اجرا کنید."
-                    : "Administrator elevation was declined. Run Radpa as Administrator to enable.";
+                    ? "دسترسی مدیر اعطا نشد یا راه‌اندازی ماژول شبکه ناموفق بود."
+                    : "Administrator elevation was declined or helper failed to start.";
             }
         }
         else

@@ -28,7 +28,17 @@
     <ProjectReference Include="..\Radpa.Application\Radpa.Application.csproj" />
     <ProjectReference Include="..\Radpa.Infrastructure\Radpa.Infrastructure.csproj" />
     <ProjectReference Include="..\Radpa.Domain\Radpa.Domain.csproj" />
+    <ProjectReference Include="..\Radpa.NetCollector\Radpa.NetCollector.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
+  <Target Name="CopyNetCollectorToOutput" AfterTargets="Build">
+    <ItemGroup>
+      <_NetCollectorFiles Include="$(MSBuildProjectDirectory)\..\Radpa.NetCollector\bin\$(Configuration)\$(TargetFramework)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_NetCollectorFiles)"
+          DestinationFolder="$(TargetDir)%(RecursiveDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(MSBuildProjectDirectory)\..\Radpa.NetCollector\bin\$(Configuration)\$(TargetFramework)')" />
+  </Target>
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />

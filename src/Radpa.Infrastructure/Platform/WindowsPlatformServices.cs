@@ -71,7 +71,62 @@ public sealed class WindowsElevationService : IElevationService
 
         var ridSuffix = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "win-arm64" : "win-x64";
         var archSpecific = Path.Combine(baseDir, $"Radpa.NetCollector-{ridSuffix}.exe");
-        return File.Exists(archSpecific) ? archSpecific : null;
+        if (File.Exists(archSpecific))
+        {
+            return archSpecific;
+        }
+
+        // Development / debug fallback: search parent directories for sibling Radpa.NetCollector build outputs
+        var candidateDir = baseDir;
+        for (var i = 0; i < 8 && candidateDir is not null; i++)
+        {
+            var netCollectorBin = Path.Combine(candidateDir, "src", "Radpa.NetCollector", "bin");
+            if (Directory.Exists(netCollectorBin))
+            {
+                const string tfm = "net10.0-windows10.0.17763.0";
+                var debugExe = Path.Combine(netCollectorBin, "Debug", tfm, "Radpa.NetCollector.exe");
+                if (File.Exists(debugExe))
+                {
+                    return debugExe;
+                }
+
+                var releaseExe = Path.Combine(netCollectorBin, "Release", tfm, "Radpa.NetCollector.exe");
+                if (File.Exists(releaseExe))
+                {
+                    return releaseExe;
+                }
+
+                var winX64Exe = Path.Combine(netCollectorBin, "Release", tfm, "win-x64", "Radpa.NetCollector.exe");
+                if (File.Exists(winX64Exe))
+                {
+                    return winX64Exe;
+                }
+            }
+
+            var parent = Directory.GetParent(candidateDir);
+            candidateDir = parent?.FullName;
+        }
+
+        return null;
+    }
+
+    private static bool IsCurrentProcessAdmin()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
+        try
+        {
+            using var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public Task<bool> StartNetworkHelperElevatedAsync(string pipeName, CancellationToken cancellationToken)
@@ -86,12 +141,17 @@ public sealed class WindowsElevationService : IElevationService
         try
         {
             var sid = WindowsIdentity.GetCurrent().User?.Value ?? string.Empty;
+            var helperExe = HelperExecutablePath;
+            var helperDir = Path.GetDirectoryName(helperExe);
+            var isAdmin = IsCurrentProcessAdmin();
+
             var psi = new ProcessStartInfo
             {
-                FileName = HelperExecutablePath,
+                FileName = helperExe,
                 Arguments = $"--pipe \"{pipeName}\" --sid \"{sid}\" --parent {Environment.ProcessId}",
-                UseShellExecute = true,
-                Verb = "runas",
+                WorkingDirectory = string.IsNullOrWhiteSpace(helperDir) ? AppContext.BaseDirectory : helperDir,
+                UseShellExecute = !isAdmin,
+                Verb = isAdmin ? string.Empty : "runas",
                 WindowStyle = ProcessWindowStyle.Hidden,
                 CreateNoWindow = true,
             };

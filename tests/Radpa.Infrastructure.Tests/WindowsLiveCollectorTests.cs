@@ -3,6 +3,7 @@ using NSubstitute;
 using Radpa.Application.Abstractions;
 using Radpa.Domain.ValueObjects;
 using Radpa.Infrastructure.Collectors;
+using Radpa.Infrastructure.Platform;
 using Xunit;
 
 namespace Radpa.Infrastructure.Tests;
@@ -71,5 +72,15 @@ public sealed class WindowsLiveCollectorTests
 
         var selfMetrics = new SelfMetricsProvider().Capture();
         selfMetrics.WorkingSetBytes.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void WindowsElevationServiceResolvesHelperInEnvironment()
+    {
+        var logger = Substitute.For<IAppLogger>();
+        var service = new WindowsElevationService(logger);
+        service.IsHelperAvailable.Should().BeTrue();
+        WindowsElevationService.HelperExecutablePath.Should().NotBeNullOrWhiteSpace();
+        File.Exists(WindowsElevationService.HelperExecutablePath).Should().BeTrue();
     }
 }
