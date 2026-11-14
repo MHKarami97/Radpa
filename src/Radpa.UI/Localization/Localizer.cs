@@ -68,6 +68,14 @@ public sealed partial class Localizer : ObservableObject
     public string AppDetailNetworkMetrics => IsPersian ? "شاخص‌های تبادل داده شبکه" : "Network Data Exchange Metrics";
     public string AppDetailDurations => IsPersian ? "تفکیک زمان‌های استفاده" : "Usage Time Breakdown";
     public string AppDetailHealthBreakdown => IsPersian ? "تفکیک امتیاز سلامت برنامه" : "Health Score Breakdown";
+    public string SettingsAdminActiveTitle => IsPersian ? "وضعیت اجرا: دارای دسترسی مدیر (Administrator Mode)" : "Status: Running as Administrator";
+    public string SettingsAdminActiveDesc => IsPersian
+        ? "برنامه در حال حاضر با دسترسی کامل Administrator اجرا شده است. پایش ترافیک شبکه (ارسال و دریافت) و تمام امکانات پیشرفته بدون محدودیت فعال هستند."
+        : "Application is currently running with full Administrator privileges. Network sent/received tracking and all advanced monitors are fully active.";
+    public string SettingsStandardUserTitle => IsPersian ? "وضعیت اجرا: کاربر استاندارد (Standard User)" : "Status: Standard User Mode";
+    public string SettingsStandardUserDesc => IsPersian
+        ? "جهت فعال‌سازی پایش دقیق و تفکیکی بسته‌های شبکه، تیک «رصد دقیق شبکه» را بزنید یا برنامه را با Run as Administrator اجرا کنید."
+        : "To monitor per-app network traffic, enable Detailed Network Tracking or launch Radpa with Run as Administrator.";
 
     public string ColApp => IsPersian ? "برنامه" : "Application";
     public string ColOpen => IsPersian ? "زمان باز" : "Open";

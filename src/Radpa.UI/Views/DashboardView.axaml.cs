@@ -15,9 +15,23 @@ public sealed partial class DashboardView : UserControl
         var grid = this.FindControl<DataGrid>("AppsDataGrid");
         if (grid is not null)
         {
+            grid.Tapped += (_, _) =>
+            {
+                if (_boundVm is { IsAppDetailOpen: false, SelectedApp: { } app })
+                {
+                    _boundVm.OpenAppDetail(app);
+                }
+            };
             grid.DoubleTapped += (_, _) =>
             {
-                if (_boundVm?.SelectedApp is { } app)
+                if (_boundVm is { IsAppDetailOpen: false, SelectedApp: { } app })
+                {
+                    _boundVm.OpenAppDetail(app);
+                }
+            };
+            grid.KeyDown += (_, e) =>
+            {
+                if (e.Key == Avalonia.Input.Key.Enter && _boundVm is { IsAppDetailOpen: false, SelectedApp: { } app })
                 {
                     _boundVm.OpenAppDetail(app);
                 }

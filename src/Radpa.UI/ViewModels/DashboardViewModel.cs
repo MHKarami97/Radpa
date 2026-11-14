@@ -294,6 +294,7 @@ public sealed partial class DashboardViewModel : ObservableObject
     {
         IsAppDetailOpen = false;
         DetailedApp = null;
+        SelectedApp = null;
     }
 
     public void BuildDetailedAppMetrics(AppMetricRowViewModel app)

@@ -38,6 +38,36 @@
       <!-- Network Admin Mode & Encryption -->
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
         <StackPanel Spacing="10">
+          <!-- Administrator Status Banner -->
+          <Border IsVisible="{Binding IsRunningAsAdmin}"
+                  Background="#1F38E8C8"
+                  BorderBrush="{DynamicResource AccentBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="12">
+            <DockPanel>
+              <TextBlock Text="🛡️" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Loc.SettingsAdminActiveTitle}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" FontSize="13" />
+                <TextBlock Text="{Binding Loc.SettingsAdminActiveDesc}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+            </DockPanel>
+          </Border>
+
+          <Border IsVisible="{Binding !IsRunningAsAdmin}"
+                  Background="#1FFBBF24"
+                  BorderBrush="{DynamicResource WarningBrush}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="12">
+            <DockPanel>
+              <TextBlock Text="ℹ️" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center" />
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Loc.SettingsStandardUserTitle}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" FontSize="13" />
+                <TextBlock Text="{Binding Loc.SettingsStandardUserDesc}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+              </StackPanel>
+            </DockPanel>
+          </Border>
           <CheckBox Content="{Binding Loc.SettingsDetailedNetwork}" IsChecked="{Binding DetailedNetworkEnabled}" FontWeight="SemiBold" />
           <TextBlock Text="{Binding Loc.SettingsNetworkAdminExplanation}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap" />
           <CheckBox Content="{Binding Loc.SettingsEncryption}" IsChecked="{Binding EncryptionEnabled}" FontWeight="SemiBold" />

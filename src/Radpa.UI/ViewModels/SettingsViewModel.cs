@@ -159,6 +159,8 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsBusy { get; set; }
 
+    public bool IsRunningAsAdmin => _current is not null && DashboardViewModel.CheckIsAdministrator();
+
     [ObservableProperty]
     public partial string StatusMessage { get; set; } = string.Empty;
 
