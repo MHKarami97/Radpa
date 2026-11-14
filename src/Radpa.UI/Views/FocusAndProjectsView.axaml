@@ -7,6 +7,19 @@
              x:CompileBindings="True">
   <ScrollViewer>
     <StackPanel Spacing="16" Margin="16">
+      <!-- Guide Banner -->
+      <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
+        <StackPanel Spacing="10">
+          <DockPanel>
+            <TextBlock Text="🎯" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Loc.FocusGuideTitle}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" />
+          </DockPanel>
+          <TextBlock Text="{Binding Loc.FocusGuideSession}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding Loc.FocusGuideProjects}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="12" TextWrapping="Wrap" />
+        </StackPanel>
+      </Border>
+
+      <!-- Focus Session Card -->
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
         <StackPanel Spacing="10">
           <TextBlock Text="{Binding Loc.FocusTimerTitle}" FontSize="17" FontWeight="Bold" />
@@ -22,29 +35,39 @@
         </StackPanel>
       </Border>
 
+      <!-- Project Time Tagging Card -->
       <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
         <StackPanel Spacing="10">
           <TextBlock Text="{Binding Loc.ProjectsTitle}" FontSize="17" FontWeight="Bold" />
-          <WrapPanel Orientation="Horizontal" ItemSpacing="8">
-            <TextBox Width="160" PlaceholderText="Project Name" Text="{Binding NewProjectName}" />
-            <TextBox Width="180" PlaceholderText="Process / Title Pattern" Text="{Binding NewProjectPattern}" />
-            <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddProjectRuleCommand}" />
+          <TextBlock Text="{Binding Loc.ProjectRuleHint}" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap" />
+          <WrapPanel Orientation="Horizontal" ItemSpacing="8" LineSpacing="8">
+            <TextBox Width="180" PlaceholderText="{Binding Loc.ProjectNamePlaceholder}" Text="{Binding NewProjectName}" />
+            <TextBox Width="200" PlaceholderText="{Binding Loc.ProjectPatternPlaceholder}" Text="{Binding NewProjectPattern}" />
+            <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddProjectRuleCommand}" FontWeight="SemiBold" />
           </WrapPanel>
           <ItemsControl ItemsSource="{Binding ProjectRules}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="dom:ProjectTagRule">
-                <DockPanel Margin="0,3">
-                  <TextBlock Text="{Binding ProjectName}" FontWeight="SemiBold" Width="150" />
-                  <TextBlock Text="{Binding Pattern}" Foreground="{DynamicResource TextMutedBrush}" />
-                </DockPanel>
+                <Border Background="#10FFFFFF" CornerRadius="6" Padding="10,6" Margin="0,3">
+                  <DockPanel>
+                    <TextBlock Text="{Binding ProjectName}" FontWeight="SemiBold" Width="180" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Pattern}" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" />
+                  </DockPanel>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <DataGrid ItemsSource="{Binding ProjectSummaries}" AutoGenerateColumns="False" IsReadOnly="True" CanUserResizeColumns="True" MinHeight="180">
+          <DataGrid x:Name="ProjectGrid"
+                    ItemsSource="{Binding ProjectSummaries}"
+                    AutoGenerateColumns="False"
+                    IsReadOnly="True"
+                    CanUserResizeColumns="True"
+                    MinHeight="180"
+                    FlowDirection="{Binding Loc.FlowDirection}">
             <DataGrid.Columns>
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Project" Binding="{Binding ProjectName}" Width="Auto" MinWidth="200" />
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="Active" Binding="{Binding ActiveText}" Width="Auto" MinWidth="160" />
-              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Header="On-Screen" Binding="{Binding OnScreenText}" Width="Auto" MinWidth="160" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Binding="{Binding ProjectName}" Width="Auto" MinWidth="200" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Binding="{Binding ActiveText}" Width="Auto" MinWidth="160" />
+              <DataGridTextColumn x:DataType="vm:ProjectSummaryRowViewModel" Binding="{Binding OnScreenText}" Width="Auto" MinWidth="160" />
             </DataGrid.Columns>
           </DataGrid>
         </StackPanel>

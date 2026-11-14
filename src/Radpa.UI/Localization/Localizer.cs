@@ -89,31 +89,86 @@ public sealed partial class Localizer : ObservableObject
     public string ColReceived => IsPersian ? "دریافت" : "Received";
     public string ColHealth => IsPersian ? "سلامت" : "Health";
 
+    // Privacy Auditor
     public string PrivacyTitle => IsPersian ? "ممیزی حریم خصوصی شبکه" : "Network Privacy Auditor";
     public string PrivacySubtitle => IsPersian
         ? "مشاهده مقصدهای ارتباطی هر برنامه به تفکیک آی‌پی، دامنه و رابط شبکه (مقصدهای جدید برجسته می‌شوند)."
         : "Inspect where each app sends or receives data by endpoint, resolved domain, and interface.";
+    public string PrivacyGuideTitle => IsPersian ? "راهنمای ممیزی حریم خصوصی و امنیت ارتباطات شبکه" : "Network Privacy Auditor Guide";
+    public string PrivacyGuidePoints => IsPersian
+        ? "این ماژول کلیه اتصالات ورودی و خروجی نرم‌افزارهای سیستم را به‌صورت ۱۰۰٪ محلی و آفلاین ممیزی می‌کند:\n• شناسایی مقصدهای مشکوک و بدافزارها: بررسی دقیق اینکه هر برنامه دقیقاً به چه آدرس آی‌پی (IP) و چه نام دامنه‌ای (Domain) در اینترنت متصل شده است.\n• مقصدهای اولین بار (نشان «جدید»): چنانچه نرم‌افزاری برای اولین بار به مقصدی متصل شود، نشان «جدید» درج می‌گردد تا رفتارهای غیرعادی سریعاً کشف شوند.\n• تفکیک رابط شبکه: مشخص می‌کند تبادل داده روی کدام رابط (وای‌فای، کابل اترنت، وی‌پی‌ان یا لوپ‌بک) انجام شده است."
+        : "This module provides a 100% offline, local audit of outbound and inbound network connections:\n• Inspect remote IP endpoints and resolved domain hostnames to verify data security and rule out spyware.\n• First-time destinations are tagged with a 'NEW' badge so unexpected connections stand out immediately.\n• View interface breakdown (Wi-Fi, Ethernet, VPN, Loopback) for all network sockets.";
     public string PrivacyFirstTimeOnly => IsPersian ? "فقط مقصدهای اولین بار" : "First-time destinations only";
-    public string ColInterface => IsPersian ? "رابط" : "Interface";
+    public string ColInterface => IsPersian ? "رابط شبکه" : "Interface";
     public string ColRemoteIp => IsPersian ? "آی‌پی مقصد" : "Remote IP";
-    public string ColDomain => IsPersian ? "دامنه" : "Domain";
+    public string ColDomain => IsPersian ? "نام دامنه" : "Domain";
     public string ColFirstSeen => IsPersian ? "اولین مشاهده" : "First Seen";
     public string BadgeNewDestination => IsPersian ? "جدید" : "NEW";
 
+    // Insights & Rules
     public string InsightsAnomalies => IsPersian ? "هشدارهای ناهنجاری (میانه / MAD)" : "Anomaly Alerts (Rolling Median / MAD)";
     public string InsightsHealthBreakdown => IsPersian ? "جزئیات امتیاز سلامت برنامه‌ها" : "App Health Score Breakdown";
     public string InsightsRulesEngine => IsPersian ? "موتور قوانین هشدار آپلود" : "Upload Alert Rules Engine";
     public string InsightsPeriodCompare => IsPersian ? "مقایسه دو بازه زمانی" : "Compare Two Periods";
     public string BtnRunCompare => IsPersian ? "مقایسه دوره‌ها" : "Compare Periods";
     public string BtnAddRule => IsPersian ? "افزودن قانون" : "Add Rule";
+    public string InsightsGuideTitle => IsPersian ? "راهنمای تحلیل هوشمند و قوانین سیستم" : "Intelligent Insights & Rules Guide";
+    public string InsightsGuideAnomalies => IsPersian
+        ? "• هشدارهای ناهنجاری: تشخیص خودکار جهش‌های نامتعارف مصرف پردازنده، حافظه رم یا ترافیک توسط الگوریتم آماری میانه متحرک (MAD)."
+        : "• Anomalies: Automatic detection of unusual CPU, RAM, or network spikes using rolling median (MAD) statistics.";
+    public string InsightsGuideHealth => IsPersian
+        ? "• نمره سلامت: ارزیابی ۱۰۰ نمره‌ای رفتار بهینه نرم‌افزار بر اساس مصرف منابع (۶۰٪)، پاکیزگی شبکه (۲۵٪) و سرعت راه‌اندازی (۱۵٪)."
+        : "• Health Score: 100-point efficiency rating evaluating CPU/RAM efficiency (60%), network footprint (25%), and startup overhead (15%).";
+    public string InsightsGuideRules => IsPersian
+        ? "• موتور قوانین ترافیک: تعیین سقف مجاز آپلود در ساعت برای نرم‌افزارهای خاص (جهت نظارت بر مصرف اینترنت و پیشگیری از نشت داده)."
+        : "• Upload Rules: Set hourly upload caps for specific applications to control bandwidth and prevent exfiltration.";
+    public string InsightsGuidePeriod => IsPersian
+        ? "• مقایسه دوره‌ها: سنجش تغییرات مصرف و زمان کارکرد برنامه‌ها بین دو بازه زمانی (مثلاً هفته اخیر نسبت به هفته قبل)."
+        : "• Period Compare: Compare active duration and resource footprint between two time windows to evaluate trends.";
+    public string InsightsAnomaliesEmpty => IsPersian
+        ? "✅ هیچ ناهنجاری مصرفی ثبت نشده است؛ رفتار کلیه نرم‌افزارها در وضعیت نرمال و استاندارد قرار دارد."
+        : "No anomalies detected; all applications are operating within normal thresholds.";
+    public string ColHealthTotal => IsPersian ? "نمره کل" : "Total Score";
+    public string ColHealthResource => IsPersian ? "منابع (۶۰٪)" : "Resources (60%)";
+    public string ColHealthNetwork => IsPersian ? "شبکه (۲۵٪)" : "Network (25%)";
+    public string ColHealthStartup => IsPersian ? "راه‌اندازی (۱۵٪)" : "Startup (15%)";
+    public string ColHealthGrade => IsPersian ? "رتبه" : "Grade";
+    public string ColCompareBefore => IsPersian ? "دوره قبل" : "Previous";
+    public string ColCompareAfter => IsPersian ? "دوره جاری" : "Current";
+    public string ColCompareDeltaActive => IsPersian ? "تغییر فعالیت (Δ)" : "Active Δ";
+    public string ColCompareDeltaCpu => IsPersian ? "تغییر پردازنده (Δ)" : "CPU Δ";
+    public string ColCompareDeltaNet => IsPersian ? "تغییر شبکه (Δ)" : "Network Δ";
+    public string RuleNamePlaceholder => IsPersian ? "نام قانون (مثلاً سقف آپلود)" : "Rule name";
+    public string RuleAppPatternPlaceholder => IsPersian ? "الگوی برنامه (*telegram*)" : "App pattern (*)";
+    public string RuleLimitUnit => IsPersian ? "مگابایت در ساعت" : "MB / hour";
+    public string RuleDescriptionHint => IsPersian
+        ? "با تعریف الگوهایی مانند *telegram* یا chrome.exe و تعیین سقف مگابایت، در صورت خروج داده بیش از حد در هر ساعت هشدار دریافت کنید."
+        : "Define process patterns (e.g. *telegram* or chrome.exe) and maximum hourly upload to receive alerts on excess traffic.";
 
+    // Focus & Projects
     public string FocusTimerTitle => IsPersian ? "جلسه تمرکز" : "Focus Session Timer";
     public string FocusStart => IsPersian ? "شروع تمرکز" : "Start Focus";
     public string FocusStop => IsPersian ? "پایان جلسه" : "Stop Session";
     public string FocusDistractingApps => IsPersian ? "برنامه‌های حواس‌پرت‌کن (جداشده با ویرگول)" : "Distracting apps (comma-separated)";
     public string FocusMinutes => IsPersian ? "مدت (دقیقه)" : "Duration (minutes)";
     public string ProjectsTitle => IsPersian ? "برچسب‌گذاری پروژه‌ها" : "Project Time Tagging";
+    public string FocusGuideTitle => IsPersian ? "راهنمای جلسه تمرکز (Deep Work) و مدیریت پروژه‌ها" : "Focus Sessions & Project Tagging Guide";
+    public string FocusGuideSession => IsPersian
+        ? "• جلسات تمرکز عمیق: مشابه تکنیک پومودورو، برای کار بدون حواس‌پرتی زمان جلسه را تعیین کرده و برنامه‌های مخل تمرکز (مانند پیام‌رسان‌ها یا شبکه‌های اجتماعی) را در کادر بنویسید. در حین جلسه، در صورت باز شدن این برنامه‌ها هشدار داده می‌شود و در پایان، گزارش کامل بازدهی جلسه ارائه خواهد شد."
+        : "• Focus Sessions: Similar to Pomodoro, set your deep work duration and list distracting apps. You will be alerted if distracting apps are accessed, followed by a productivity summary at the end.";
+    public string FocusGuideProjects => IsPersian
+        ? "• برچسب‌گذاری و تفکیک پروژه‌ها: با ثبت نام پروژه و الگوی پنجره یا نام فرایند (مانند *Radpa* یا code.exe یا *.fig*)، ردپا زمان‌های کار شما روی هر پروژه را به‌طور خودکار تفکیک و در جدول محاسبه می‌کند."
+        : "• Project Tagging: Map window titles or process names (e.g. *Radpa*, code.exe) to projects to automatically aggregate time spent per project.";
+    public string ProjectNamePlaceholder => IsPersian ? "نام پروژه (مثلاً توسعه رادپا)" : "Project name";
+    public string ProjectPatternPlaceholder => IsPersian ? "الگوی پنجره یا فرایند (*Radpa*)" : "Process or window pattern";
+    public string ColProjectName => IsPersian ? "پروژه" : "Project";
+    public string ColProjectActive => IsPersian ? "زمان فعال (کار مفید)" : "Active Time";
+    public string ColProjectOnScreen => IsPersian ? "زمان روی مانیتور" : "On-Screen Time";
+    public string ProjectRuleHint => IsPersian
+        ? "با تعریف الگوی پنجره یا نام فایل اجرایی (مثلاً *Figma* یا code.exe)، زمان‌های کارکرد به‌طور هوشمند به نام پروژه اختصاص می‌یابند."
+        : "Define window titles or executable patterns to automatically classify active work time under the project.";
 
+    // Settings
     public string SettingsGeneral => IsPersian ? "عمومی و ظاهر" : "General & Appearance";
     public string SettingsLanguage => IsPersian ? "زبان برنامه" : "Language";
     public string SettingsTheme => IsPersian ? "پوسته" : "Theme";

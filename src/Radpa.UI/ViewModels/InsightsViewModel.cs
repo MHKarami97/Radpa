@@ -48,6 +48,7 @@ public sealed partial class InsightsViewModel : ObservableObject
         _settings = initialSettings;
         _saveSettingsAsync = saveSettingsAsync;
         ReloadRules();
+        HasAnomalies = Anomalies.Count > 0;
     }
 
     public Localizer Loc { get; }
@@ -61,6 +62,9 @@ public sealed partial class InsightsViewModel : ObservableObject
     [ObservableProperty]
     public partial int NewRuleMaxUploadMbPerHour { get; set; } = 500;
 
+    [ObservableProperty]
+    public partial bool HasAnomalies { get; set; }
+
     public ObservableCollection<AnomalyAlert> Anomalies { get; } = [];
     public ObservableCollection<HealthBreakdownRowViewModel> HealthRows { get; } = [];
     public ObservableCollection<NetworkAlertRule> Rules { get; } = [];
@@ -73,6 +77,7 @@ public sealed partial class InsightsViewModel : ObservableObject
         {
             Anomalies.RemoveAt(Anomalies.Count - 1);
         }
+        HasAnomalies = Anomalies.Count > 0;
     }
 
     public void UpdateFromSnapshot(DashboardSnapshot snapshot, AppSettings settings)

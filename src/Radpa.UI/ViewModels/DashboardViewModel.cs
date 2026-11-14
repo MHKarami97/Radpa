@@ -256,22 +256,47 @@ public sealed partial class DashboardViewModel : ObservableObject
 
         TopAppBars = _lastSnapshot.Apps
             .Take(6)
-            .Select(a => new HorizontalBarItem
+            .Select(a =>
             {
-                Label = a.DisplayName,
-                PrimaryValue = Math.Max(1, a.ActiveDuration.TotalSeconds),
-                ValueText = NumberFormatter.FormatDuration(a.ActiveDuration, digits, fa),
+                var durationText = NumberFormatter.FormatDuration(a.ActiveDuration, digits, fa);
+                var tooltip = Loc.IsPersian
+                    ? $"{a.DisplayName}\nمدت فعالیت: {durationText}\nمسیر: {a.ExecutablePath}"
+                    : $"{a.DisplayName}\nActive duration: {durationText}\nPath: {a.ExecutablePath}";
+
+                return new HorizontalBarItem
+                {
+                    Label = a.DisplayName,
+                    PrimaryValue = Math.Max(1, a.ActiveDuration.TotalSeconds),
+                    ValueText = durationText,
+                    TooltipText = tooltip,
+                };
             })
             .ToArray();
 
         InterfaceNetworkBars = _lastSnapshot.NetworkByInterface
             .Take(6)
-            .Select(n => new HorizontalBarItem
+            .Select(n =>
             {
-                Label = $"{n.InterfaceName} ({n.InterfaceKind})",
-                PrimaryValue = n.BytesSent,
-                SecondaryValue = n.BytesReceived,
-                ValueText = $"{NumberFormatter.FormatBytes(n.BytesSent, digits, fa)} / {NumberFormatter.FormatBytes(n.BytesReceived, digits, fa)}",
+                var kindLabel = Loc.IsPersian ? LocalizeInterfaceKind(n.InterfaceKind) : n.InterfaceKind.ToString();
+                var displayLabel = string.IsNullOrWhiteSpace(kindLabel) || n.InterfaceName.Contains(kindLabel, StringComparison.OrdinalIgnoreCase)
+                    ? n.InterfaceName
+                    : $"{n.InterfaceName} ({kindLabel})";
+                var sentText = NumberFormatter.FormatBytes(n.BytesSent, digits, fa);
+                var recvText = NumberFormatter.FormatBytes(n.BytesReceived, digits, fa);
+                var totalBytes = n.BytesSent + n.BytesReceived;
+                var totalText = NumberFormatter.FormatBytes(totalBytes, digits, fa);
+                var tooltip = Loc.IsPersian
+                    ? $"رابط: {n.InterfaceName}\nنوع: {kindLabel}\nارسال: {sentText}\nدریافت: {recvText}\nمجموع: {totalText}"
+                    : $"Interface: {n.InterfaceName}\nType: {kindLabel}\nSent: {sentText}\nReceived: {recvText}\nTotal: {totalText}";
+
+                return new HorizontalBarItem
+                {
+                    Label = displayLabel,
+                    PrimaryValue = n.BytesSent,
+                    SecondaryValue = n.BytesReceived,
+                    ValueText = $"{sentText} / {recvText}",
+                    TooltipText = tooltip,
+                };
             })
             .ToArray();
     }
@@ -310,18 +335,27 @@ public sealed partial class DashboardViewModel : ObservableObject
                 Label = Loc.IsPersian ? "زمان فعال (فوکوس)" : "Active (Focused)",
                 PrimaryValue = Math.Max(0.5, raw.ActiveDuration.TotalSeconds),
                 ValueText = NumberFormatter.FormatDuration(raw.ActiveDuration, digits, fa),
+                TooltipText = Loc.IsPersian
+                    ? $"زمان فوکوس کاربر روی پنجره برنامه: {NumberFormatter.FormatDuration(raw.ActiveDuration, digits, fa)}"
+                    : $"Focused user time: {NumberFormatter.FormatDuration(raw.ActiveDuration, digits, fa)}",
             },
             new HorizontalBarItem
             {
                 Label = Loc.IsPersian ? "زمان در صفحه (Visible)" : "On-Screen",
                 PrimaryValue = Math.Max(0.5, raw.OnScreenDuration.TotalSeconds),
                 ValueText = NumberFormatter.FormatDuration(raw.OnScreenDuration, digits, fa),
+                TooltipText = Loc.IsPersian
+                    ? $"مدت زمان مشاهده پنجره روی مانیتور: {NumberFormatter.FormatDuration(raw.OnScreenDuration, digits, fa)}"
+                    : $"Time window was visible on screen: {NumberFormatter.FormatDuration(raw.OnScreenDuration, digits, fa)}",
             },
             new HorizontalBarItem
             {
                 Label = Loc.IsPersian ? "کل زمان باز بودن" : "Total Open",
                 PrimaryValue = Math.Max(0.5, raw.OpenDuration.TotalSeconds),
                 ValueText = NumberFormatter.FormatDuration(raw.OpenDuration, digits, fa),
+                TooltipText = Loc.IsPersian
+                    ? $"مجموع زمان اجرای پروسه در پیش‌زمینه یا پس‌زمینه: {NumberFormatter.FormatDuration(raw.OpenDuration, digits, fa)}"
+                    : $"Total process runtime: {NumberFormatter.FormatDuration(raw.OpenDuration, digits, fa)}",
             },
         ];
 
@@ -332,12 +366,18 @@ public sealed partial class DashboardViewModel : ObservableObject
                 Label = Loc.IsPersian ? "حجم ارسال (Sent)" : "Data Sent",
                 PrimaryValue = Math.Max(1, raw.NetworkSentBytes),
                 ValueText = NumberFormatter.FormatBytes(raw.NetworkSentBytes, digits, fa),
+                TooltipText = Loc.IsPersian
+                    ? $"مجموع داده ارسالی به شبکه: {NumberFormatter.FormatBytes(raw.NetworkSentBytes, digits, fa)}"
+                    : $"Total outbound network bytes: {NumberFormatter.FormatBytes(raw.NetworkSentBytes, digits, fa)}",
             },
             new HorizontalBarItem
             {
                 Label = Loc.IsPersian ? "حجم دریافت (Received)" : "Data Received",
                 PrimaryValue = Math.Max(1, raw.NetworkReceivedBytes),
                 ValueText = NumberFormatter.FormatBytes(raw.NetworkReceivedBytes, digits, fa),
+                TooltipText = Loc.IsPersian
+                    ? $"مجموع داده دریافتی از شبکه: {NumberFormatter.FormatBytes(raw.NetworkReceivedBytes, digits, fa)}"
+                    : $"Total inbound network bytes: {NumberFormatter.FormatBytes(raw.NetworkReceivedBytes, digits, fa)}",
             },
         ];
 
@@ -362,6 +402,16 @@ public sealed partial class DashboardViewModel : ObservableObject
             DetailedAppPrivacyRows = [];
         }
     }
+
+    private static string LocalizeInterfaceKind(NetworkInterfaceKind kind) => kind switch
+    {
+        NetworkInterfaceKind.WiFi => "وای‌فای",
+        NetworkInterfaceKind.Ethernet => "کابلی",
+        NetworkInterfaceKind.Loopback => "لوپ‌بک",
+        NetworkInterfaceKind.Vpn => "وی‌پی‌ان",
+        NetworkInterfaceKind.Cellular => "شبکه همراه",
+        _ => string.Empty,
+    };
 
     public static bool CheckIsAdministrator()
     {

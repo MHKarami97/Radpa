@@ -1,6 +1,7 @@
 using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using Radpa.Application.Reports;
 using Radpa.Domain.Services;
@@ -13,6 +14,7 @@ public sealed class HorizontalBarItem
     public required double PrimaryValue { get; init; }
     public double SecondaryValue { get; init; }
     public required string ValueText { get; init; }
+    public string? TooltipText { get; init; }
 }
 
 /// <summary>
@@ -39,6 +41,11 @@ public sealed class HorizontalBarChartControl : Control
         AffectsRender<HorizontalBarChartControl>(ItemsProperty, PrimaryBrushProperty, SecondaryBrushProperty, LabelBrushProperty, FlowDirectionProperty);
     }
 
+    public HorizontalBarChartControl()
+    {
+        ToolTip.SetShowDelay(this, 100);
+    }
+
     public IReadOnlyList<HorizontalBarItem>? Items
     {
         get => GetValue(ItemsProperty);
@@ -61,6 +68,46 @@ public sealed class HorizontalBarChartControl : Control
     {
         get => GetValue(LabelBrushProperty);
         set => SetValue(LabelBrushProperty, value);
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        var items = Items;
+        if (items is null || items.Count == 0 || Bounds.Height <= 0)
+        {
+            ToolTip.SetTip(this, null);
+            ToolTip.SetIsOpen(this, false);
+            return;
+        }
+
+        var rowHeight = Math.Min(32.0, Bounds.Height / items.Count);
+        var pos = e.GetPosition(this);
+        var index = (int)(pos.Y / rowHeight);
+
+        if (index >= 0 && index < items.Count && pos.Y >= 0 && pos.Y <= items.Count * rowHeight)
+        {
+            var item = items[index];
+            var tip = !string.IsNullOrWhiteSpace(item.TooltipText) ? item.TooltipText : $"{item.Label}\n{item.ValueText}";
+            var current = ToolTip.GetTip(this) as string;
+            if (current != tip)
+            {
+                ToolTip.SetTip(this, tip);
+                ToolTip.SetIsOpen(this, true);
+            }
+        }
+        else
+        {
+            ToolTip.SetIsOpen(this, false);
+            ToolTip.SetTip(this, null);
+        }
+    }
+
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        ToolTip.SetIsOpen(this, false);
+        ToolTip.SetTip(this, null);
     }
 
     public override void Render(DrawingContext context)
@@ -86,9 +133,9 @@ public sealed class HorizontalBarChartControl : Control
 
         var isRtl = FlowDirection == FlowDirection.RightToLeft;
         var rowHeight = Math.Min(32.0, Bounds.Height / items.Count);
-        var labelWidth = Math.Min(150.0, Bounds.Width * 0.34);
-        var valueWidth = Math.Min(95.0, Bounds.Width * 0.22);
-        var barAreaWidth = Math.Max(30.0, Bounds.Width - labelWidth - valueWidth - 20);
+        var labelWidth = Math.Min(280.0, Bounds.Width * 0.44);
+        var valueWidth = Math.Min(125.0, Bounds.Width * 0.24);
+        var barAreaWidth = Math.Max(25.0, Bounds.Width - labelWidth - valueWidth - 16);
 
         for (var i = 0; i < items.Count; i++)
         {
