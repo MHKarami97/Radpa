@@ -46,7 +46,7 @@
       <!-- Tab Content -->
       <TabControl SelectedIndex="{Binding SelectedTabIndex}" Padding="0">
         <TabControl.Styles>
-          <Style Selector="TabItem">
+          <Style Selector="TabControl /template/ ItemsPresenter#PART_ItemsPresenter">
             <Setter Property="IsVisible" Value="False" />
           </Style>
         </TabControl.Styles>

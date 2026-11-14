@@ -22,6 +22,7 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <StripSymbols>true</StripSymbols>
+    <NoWarn>$(NoWarn);IL2104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Radpa.Application\Radpa.Application.csproj" />

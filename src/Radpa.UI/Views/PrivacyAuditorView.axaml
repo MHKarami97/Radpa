@@ -10,7 +10,7 @@
         <TextBlock Text="{Binding Loc.PrivacyTitle}" FontSize="18" FontWeight="Bold" />
         <TextBlock Text="{Binding Loc.PrivacySubtitle}" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
         <WrapPanel Orientation="Horizontal" ItemSpacing="12">
-          <TextBox Width="260" Watermark="{Binding Loc.SearchWatermark}" Text="{Binding FilterText}" />
+          <TextBox Width="260" PlaceholderText="{Binding Loc.SearchWatermark}" Text="{Binding FilterText}" />
           <CheckBox Content="{Binding Loc.PrivacyFirstTimeOnly}" IsChecked="{Binding FirstTimeOnly}" />
         </WrapPanel>
       </StackPanel>

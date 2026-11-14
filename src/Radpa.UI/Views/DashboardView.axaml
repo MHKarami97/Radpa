@@ -15,7 +15,7 @@
           <Button Content="{Binding Loc.RangeCustom}" Command="{Binding SelectPresetCommand}" CommandParameter="Custom" />
           <CalendarDatePicker IsVisible="{Binding IsCustomRange}" SelectedDate="{Binding CustomStartDate}" />
           <CalendarDatePicker IsVisible="{Binding IsCustomRange}" SelectedDate="{Binding CustomEndDate}" />
-          <TextBox Width="240" Watermark="{Binding Loc.SearchWatermark}" Text="{Binding SearchText}" />
+          <TextBox Width="240" PlaceholderText="{Binding Loc.SearchWatermark}" Text="{Binding SearchText}" />
           <Button Content="{Binding Loc.RefreshButton}" Command="{Binding RefreshCommand}" Background="{DynamicResource AccentBrush}" Foreground="#0F172A" FontWeight="Bold" />
         </WrapPanel>
       </Border>

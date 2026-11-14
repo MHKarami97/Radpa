@@ -50,8 +50,8 @@
         <StackPanel Spacing="8">
           <TextBlock Text="{Binding Loc.SettingsGroupingRules}" FontSize="16" FontWeight="Bold" />
           <WrapPanel Orientation="Horizontal" ItemSpacing="8">
-            <TextBox Width="180" Watermark="exe (e.g. brave.exe)" Text="{Binding NewGroupPattern}" />
-            <TextBox Width="180" Watermark="Group Name" Text="{Binding NewGroupTarget}" />
+            <TextBox Width="180" PlaceholderText="exe (e.g. brave.exe)" Text="{Binding NewGroupPattern}" />
+            <TextBox Width="180" PlaceholderText="Group Name" Text="{Binding NewGroupTarget}" />
             <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddGroupingRuleCommand}" />
           </WrapPanel>
           <ItemsControl ItemsSource="{Binding GroupingRules}">

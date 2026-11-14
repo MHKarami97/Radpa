@@ -13,7 +13,7 @@
           <WrapPanel Orientation="Horizontal" ItemSpacing="10" LineSpacing="8">
             <TextBlock Text="{Binding Loc.FocusMinutes}" VerticalAlignment="Center" />
             <NumericUpDown Width="110" Minimum="1" Maximum="240" Value="{Binding FocusMinutes}" />
-            <TextBox Width="280" Watermark="{Binding Loc.FocusDistractingApps}" Text="{Binding DistractingAppsText}" />
+            <TextBox Width="280" PlaceholderText="{Binding Loc.FocusDistractingApps}" Text="{Binding DistractingAppsText}" />
             <Button Content="{Binding Loc.FocusStart}" Command="{Binding StartFocusCommand}" IsEnabled="{Binding !IsFocusRunning}" Background="{DynamicResource AccentBrush}" Foreground="#0F172A" FontWeight="Bold" />
             <Button Content="{Binding Loc.FocusStop}" Command="{Binding StopFocusCommand}" IsEnabled="{Binding IsFocusRunning}" />
           </WrapPanel>
@@ -26,8 +26,8 @@
         <StackPanel Spacing="10">
           <TextBlock Text="{Binding Loc.ProjectsTitle}" FontSize="17" FontWeight="Bold" />
           <WrapPanel Orientation="Horizontal" ItemSpacing="8">
-            <TextBox Width="160" Watermark="Project Name" Text="{Binding NewProjectName}" />
-            <TextBox Width="180" Watermark="Process / Title Pattern" Text="{Binding NewProjectPattern}" />
+            <TextBox Width="160" PlaceholderText="Project Name" Text="{Binding NewProjectName}" />
+            <TextBox Width="180" PlaceholderText="Process / Title Pattern" Text="{Binding NewProjectPattern}" />
             <Button Content="{Binding Loc.BtnAddRule}" Command="{Binding AddProjectRuleCommand}" />
           </WrapPanel>
           <ItemsControl ItemsSource="{Binding ProjectRules}">

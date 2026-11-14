@@ -27,7 +27,7 @@ public sealed partial class Localizer : ObservableObject
 
     public FlowDirection FlowDirection => IsPersian ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
-    public string AppTitle => IsPersian ? "ردپا — پایشگر محلی برنامه‌ها" : "Radpa — Local App Footprint Monitor";
+    public string AppTitle => IsPersian ? "ردپا | پایشگر محلی برنامه‌ها" : "Radpa | Local App Footprint Monitor";
     public string AppShortName => IsPersian ? "ردپا" : "Radpa";
     public string NavDashboard => IsPersian ? "داشبورد" : "Dashboard";
     public string NavPrivacy => IsPersian ? "ممیزی حریم خصوصی" : "Privacy Auditor";

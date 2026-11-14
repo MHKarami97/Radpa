@@ -37,3 +37,9 @@ msbuild.wrn
 .vs/
 
 src/IssueByBalanceService/WebHost/elastic-logs
+
+# Test & Coverage
+coverage.json
+TestResults/
+*.opencover.xml
+publish/

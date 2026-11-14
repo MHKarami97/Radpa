@@ -130,4 +130,120 @@ public sealed class DomainCoverageTests
         var rootExe = resolver.Resolve(@"\.exe");
         rootExe.DisplayName.Should().Be("Unknown");
     }
+    [Fact]
+    public void TelemetryRecordsAndValueObjectsExposeAllPropertiesCleanly()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var key = new AppKey("exe:app");
+        var health = new AppHealthScore(90, 95, 85, 90, "Healthy");
+
+        var stats = new AppAggregateStats(
+            key, "App", @"C:\App.exe",
+            TimeSpan.FromHours(2), TimeSpan.FromHours(1), TimeSpan.FromMinutes(30),
+            15.5, 45.0, 100_000, 200_000, 150_000, 10_000, 20_000,
+            12.0, 30.0, 500_000_000, 1_000_000, 2_000_000, health, "Work");
+
+        stats.AppKey.Should().Be(key);
+        stats.DisplayName.Should().Be("App");
+        stats.ExecutablePath.Should().Be(@"C:\App.exe");
+        stats.OpenDuration.Should().Be(TimeSpan.FromHours(2));
+        stats.ActiveDuration.Should().Be(TimeSpan.FromHours(1));
+        stats.OnScreenDuration.Should().Be(TimeSpan.FromMinutes(30));
+        stats.AverageCpuPercent.Should().Be(15.5);
+        stats.PeakCpuPercent.Should().Be(45.0);
+        stats.AverageWorkingSetBytes.Should().Be(100_000);
+        stats.PeakWorkingSetBytes.Should().Be(200_000);
+        stats.PeakPrivateBytes.Should().Be(150_000);
+        stats.DiskReadBytes.Should().Be(10_000);
+        stats.DiskWriteBytes.Should().Be(20_000);
+        stats.AverageGpuPercent.Should().Be(12.0);
+        stats.PeakGpuPercent.Should().Be(30.0);
+        stats.PeakGpuVramBytes.Should().Be(500_000_000);
+        stats.NetworkSentBytes.Should().Be(1_000_000);
+        stats.NetworkReceivedBytes.Should().Be(2_000_000);
+        stats.HealthScore.Should().Be(health);
+        stats.ProjectTag.Should().Be("Work");
+
+        var audit = new PrivacyAuditEntry(key, "App", "Wi-Fi", NetworkInterfaceKind.WiFi, "1.2.3.4", "example.com", 100, 200, now, now, true);
+        audit.AppKey.Should().Be(key);
+        audit.DisplayName.Should().Be("App");
+        audit.InterfaceName.Should().Be("Wi-Fi");
+        audit.InterfaceKind.Should().Be(NetworkInterfaceKind.WiFi);
+        audit.RemoteIp.Should().Be("1.2.3.4");
+        audit.RemoteDomain.Should().Be("example.com");
+        audit.BytesSent.Should().Be(100);
+        audit.BytesReceived.Should().Be(200);
+        audit.FirstSeenUtc.Should().Be(now);
+        audit.LastSeenUtc.Should().Be(now);
+        audit.IsFirstTimeDestination.Should().BeTrue();
+
+        var focus = new FocusSession("fs-1", now, now.AddMinutes(25), now.AddMinutes(25), ["game.exe"], 1200, 300, new Dictionary<string, long> { ["game.exe"] = 300 });
+        focus.Id.Should().Be("fs-1");
+        focus.StartedUtc.Should().Be(now);
+        focus.PlannedEndUtc.Should().Be(now.AddMinutes(25));
+        focus.EndedUtc.Should().Be(now.AddMinutes(25));
+        focus.DistractingApps.Should().ContainSingle();
+        focus.FocusedSeconds.Should().Be(1200);
+        focus.DistractedSeconds.Should().Be(300);
+        focus.DistractionBreakdownSeconds.Should().ContainKey("game.exe");
+
+        var res = new ResourceSample(key, now, 10.0, 1000, 2000, 3000, 4000, 5.0, 6000, "Window");
+        res.AppKey.Should().Be(key);
+        res.TimestampUtc.Should().Be(now);
+        res.CpuPercent.Should().Be(10.0);
+        res.WorkingSetBytes.Should().Be(1000);
+        res.PrivateBytes.Should().Be(2000);
+        res.DiskReadBytesDelta.Should().Be(3000);
+        res.DiskWriteBytesDelta.Should().Be(4000);
+        res.GpuPercent.Should().Be(5.0);
+        res.GpuVramBytes.Should().Be(6000);
+        res.WindowTitle.Should().Be("Window");
+
+        var net = new NetworkSample(key, now, "Eth", NetworkInterfaceKind.Ethernet, NetworkProtocol.Tcp, "4.3.2.1", "host.com", 50, 60);
+        net.AppKey.Should().Be(key);
+        net.TimestampUtc.Should().Be(now);
+        net.InterfaceName.Should().Be("Eth");
+        net.InterfaceKind.Should().Be(NetworkInterfaceKind.Ethernet);
+        net.Protocol.Should().Be(NetworkProtocol.Tcp);
+        net.RemoteIp.Should().Be("4.3.2.1");
+        net.RemoteDomain.Should().Be("host.com");
+        net.BytesSent.Should().Be(50);
+        net.BytesReceived.Should().Be(60);
+
+        var sess = new UsageSession(42, key, now, now.AddHours(1), 3600, 1800, 2400, "Tag");
+        sess.Id.Should().Be(42);
+        sess.AppKey.Should().Be(key);
+        sess.StartUtc.Should().Be(now);
+        sess.EndUtc.Should().Be(now.AddHours(1));
+        sess.OpenSeconds.Should().Be(3600);
+        sess.ActiveSeconds.Should().Be(1800);
+        sess.OnScreenSeconds.Should().Be(2400);
+        sess.ProjectTag.Should().Be("Tag");
+
+        var projRule = new ProjectTagRule("p1", "Project", ProjectMatchKind.ExecutablePath, "work", true);
+        projRule.Id.Should().Be("p1");
+        projRule.ProjectName.Should().Be("Project");
+        projRule.MatchKind.Should().Be(ProjectMatchKind.ExecutablePath);
+        projRule.Pattern.Should().Be("work");
+        projRule.IsEnabled.Should().BeTrue();
+
+        var netRule = new NetworkAlertRule("n1", "Alert", "*", 100, true);
+        netRule.Id.Should().Be("n1");
+        netRule.Name.Should().Be("Alert");
+        netRule.AppPattern.Should().Be("*");
+        netRule.MaxUploadMegabytesPerHour.Should().Be(100);
+        netRule.IsEnabled.Should().BeTrue();
+
+        var alert = new AnomalyAlert("a1", key, "App", AnomalyMetricKind.CpuPercent, 95.0, 20.0, 5.0, 3.5, now, "High CPU");
+        alert.Id.Should().Be("a1");
+        alert.AppKey.Should().Be(key);
+        alert.DisplayName.Should().Be("App");
+        alert.Metric.Should().Be(AnomalyMetricKind.CpuPercent);
+        alert.ObservedValue.Should().Be(95.0);
+        alert.BaselineMedian.Should().Be(20.0);
+        alert.BaselineMad.Should().Be(5.0);
+        alert.ZScore.Should().Be(3.5);
+        alert.DetectedUtc.Should().Be(now);
+        alert.Explanation.Should().Be("High CPU");
+    }
 }

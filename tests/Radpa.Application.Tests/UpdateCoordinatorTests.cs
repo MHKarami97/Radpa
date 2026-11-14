@@ -52,7 +52,7 @@ public sealed class UpdateCoordinatorTests
         clock.UtcNow.Returns(t0);
 
         var checker = Substitute.For<IUpdateChecker>();
-        checker.CheckAsync(current, "etag-1", Arg.Any<CancellationToken>())
+        checker.CheckAsync(current, Arg.Any<string?>(), Arg.Any<CancellationToken>())
             .Returns(new UpdateCheckResult(
                 UpdateCheckStatus.UpdateAvailable,
                 current,
