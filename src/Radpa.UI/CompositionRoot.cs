@@ -92,6 +92,7 @@ public sealed class CompositionRoot : IAsyncDisposable
             Encryption.Configure(true, blob);
         }
 
+        Notifications.Enabled = settings.NotificationsEnabled;
         await Repository.InitializeAsync(ct);
         return settings;
     }
@@ -167,6 +168,7 @@ public sealed class CompositionRoot : IAsyncDisposable
             SelfMetrics,
             async next =>
             {
+                Notifications.Enabled = next.NotificationsEnabled;
                 if (mainVm is not null)
                 {
                     await mainVm.OnSettingsSavedAsync(next);

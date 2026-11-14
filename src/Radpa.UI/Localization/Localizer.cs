@@ -173,6 +173,7 @@ public sealed partial class Localizer : ObservableObject
     public string SettingsLanguage => IsPersian ? "زبان برنامه" : "Language";
     public string SettingsTheme => IsPersian ? "پوسته" : "Theme";
     public string SettingsPersianDigits => IsPersian ? "نمایش اعداد فارسی (۰-۹)" : "Use Persian digits (۰-۹)";
+    public string SettingsNotificationsEnabled => IsPersian ? "نمایش اعلان‌ها و هشدارهای سیستم (نوتیفیکیشن)" : "Enable alert and system notifications";
     public string SettingsIdleThreshold => IsPersian ? "آستانه بی‌کاری (ثانیه)" : "Idle threshold (seconds)";
     public string SettingsSamplingInterval => IsPersian ? "بازه نمونه‌برداری (ثانیه، حداقل ۲)" : "Sampling interval (seconds, min 2)";
     public string SettingsRetentionDays => IsPersian ? "نگهداری داده (روز)" : "Data retention (days)";

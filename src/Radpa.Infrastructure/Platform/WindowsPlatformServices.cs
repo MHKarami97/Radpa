@@ -195,10 +195,17 @@ public sealed class WindowsNotificationService : INotificationService
 {
     private Action<string, string, NotificationSeverity>? _handler;
 
+    public bool Enabled { get; set; } = true;
+
     public void AttachHandler(Action<string, string, NotificationSeverity> handler) => _handler = handler;
 
     public void ShowNotification(string title, string message, NotificationSeverity severity = NotificationSeverity.Info)
     {
+        if (!Enabled)
+        {
+            return;
+        }
+
         _handler?.Invoke(title, message, severity);
     }
 }

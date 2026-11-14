@@ -14,6 +14,7 @@
           <CheckBox Content="{Binding Loc.SettingsLanguage}" IsChecked="{Binding IsPersianLanguage}" />
           <CheckBox Content="{Binding Loc.SettingsTheme}" IsChecked="{Binding IsDarkTheme}" />
           <CheckBox Content="{Binding Loc.SettingsPersianDigits}" IsChecked="{Binding UsePersianDigits}" />
+          <CheckBox Content="{Binding Loc.SettingsNotificationsEnabled}" IsChecked="{Binding NotificationsEnabled}" />
           <CheckBox Content="{Binding Loc.SettingsStartWithWindows}" IsChecked="{Binding StartWithWindows}" />
           <CheckBox Content="{Binding Loc.SettingsMinimizeToTray}" IsChecked="{Binding MinimizeToTray}" />
           <CheckBox Content="{Binding Loc.SettingsPortableMode}" IsChecked="{Binding PortableMode}" />

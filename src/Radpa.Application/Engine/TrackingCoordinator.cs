@@ -463,10 +463,13 @@ public sealed class TrackingCoordinator : IAsyncDisposable
             foreach (var alert in anomalies)
             {
                 AnomalyDetected?.Invoke(this, alert);
-                _notifications.ShowNotification(
-                    $"Radpa Anomaly: {alert.DisplayName}",
-                    alert.Explanation,
-                    NotificationSeverity.Warning);
+                if (_settings.NotificationsEnabled)
+                {
+                    _notifications.ShowNotification(
+                        $"Radpa Anomaly: {alert.DisplayName}",
+                        alert.Explanation,
+                        NotificationSeverity.Warning);
+                }
             }
         }
 
@@ -477,7 +480,10 @@ public sealed class TrackingCoordinator : IAsyncDisposable
                 var mb = bytes / (1024.0 * 1024.0);
                 var msg = $"{rule.Name}: {app.DisplayName} uploaded {mb:F1} MB in the last hour (limit {rule.MaxUploadMegabytesPerHour} MB).";
                 RuleAlertTriggered?.Invoke(this, msg);
-                _notifications.ShowNotification("Radpa Rule Alert", msg, NotificationSeverity.Alert);
+                if (_settings.NotificationsEnabled)
+                {
+                    _notifications.ShowNotification("Radpa Rule Alert", msg, NotificationSeverity.Alert);
+                }
             }
         }
 

@@ -90,6 +90,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     public partial bool MinimizeToTray { get; set; }
 
     [ObservableProperty]
+    public partial bool NotificationsEnabled { get; set; } = true;
+
+    [ObservableProperty]
 
     public partial bool DetailedNetworkEnabled { get; set; }
 
@@ -252,6 +255,7 @@ public sealed partial class SettingsViewModel : ObservableObject
                 RecordWindowTitles = RecordWindowTitles,
                 StartWithWindows = StartWithWindows,
                 MinimizeToTray = MinimizeToTray,
+                NotificationsEnabled = NotificationsEnabled,
                 GroupingRules = GroupingRules.ToArray(),
                 UpdateCheck = _current.UpdateCheck with
                 {
@@ -429,6 +433,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         RecordWindowTitles = s.RecordWindowTitles;
         StartWithWindows = s.StartWithWindows;
         MinimizeToTray = s.MinimizeToTray;
+        NotificationsEnabled = s.NotificationsEnabled;
         DetailedNetworkEnabled = s.DetailedNetworkEnabled;
         EncryptionEnabled = s.EncryptionEnabled;
         UpdateCheckEnabled = s.UpdateCheck.Enabled;

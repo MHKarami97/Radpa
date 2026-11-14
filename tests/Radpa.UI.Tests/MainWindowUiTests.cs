@@ -93,11 +93,14 @@ public sealed class MainWindowUiTests : IDisposable
             dataGrid.Columns[0].Header.Should().Be("برنامه");
             vm.Dashboard.Rows[0].GpuText.Should().Be("ناموجود");
 
+            vm.Settings.NotificationsEnabled.Should().BeTrue();
+            vm.Settings.NotificationsEnabled = false;
             vm.Settings.IsPersianLanguage = false;
             vm.Settings.IsDarkTheme = false;
             vm.Settings.UsePersianDigits = false;
             await vm.Settings.SaveSettingsCommand.ExecuteAsync(null);
             window.UpdateLayout();
+            vm.Settings.NotificationsEnabled.Should().BeFalse();
 
             window.FlowDirection.Should().Be(FlowDirection.LeftToRight);
             vm.Loc.IsPersian.Should().BeFalse();

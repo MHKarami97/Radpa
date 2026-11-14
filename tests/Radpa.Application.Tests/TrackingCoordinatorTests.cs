@@ -238,4 +238,73 @@ public sealed class TrackingCoordinatorTests
         coordinator.UpdateSettings(new AppSettings { DetailedNetworkEnabled = false });
         await netCollector.Received(1).DisableAsync(Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task AnomalyDetected_WhenNotificationsDisabled_DoesNotShowNotification()
+    {
+        var t0 = new DateTimeOffset(2026, 11, 10, 10, 0, 0, TimeSpan.Zero);
+        var now = t0;
+
+        var clock = Substitute.For<IClock>();
+        clock.UtcNow.Returns(_ => now);
+        clock.LocalNow.Returns(_ => now.ToLocalTime());
+
+        var procMonitor = Substitute.For<IProcessMonitor>();
+        procMonitor.GetRunningProcesses().Returns([
+            new ProcessInfo(100, @"C:\App\test.exe", null, "test.exe", t0.AddMinutes(-5)),
+        ]);
+
+        var fgMonitor = Substitute.For<IForegroundMonitor>();
+        fgMonitor.GetCurrentForeground().Returns(new ForegroundAppInfo(100, null, "Test Window", t0));
+
+        var idleProvider = Substitute.For<IIdleTimeProvider>();
+        idleProvider.GetIdleDuration().Returns(TimeSpan.Zero);
+
+        var sysState = Substitute.For<ISystemStateMonitor>();
+        sysState.IsScreenLocked.Returns(false);
+        sysState.IsDisplayOff.Returns(false);
+
+        var cpuToReport = 10.0;
+        var resourceSampler = Substitute.For<IResourceSampler>();
+        resourceSampler
+            .When(r => r.SampleProcesses(Arg.Any<IReadOnlyList<int>>(), Arg.Any<List<ProcessResourceReading>>()))
+            .Do(call =>
+            {
+                var list = call.Arg<List<ProcessResourceReading>>();
+                list.Add(new ProcessResourceReading(100, cpuToReport, 100_000_000, 80_000_000, 100, 50));
+            });
+
+        var gpuSampler = Substitute.For<IGpuSampler>();
+        gpuSampler.IsAvailable.Returns(false);
+
+        var netCollector = Substitute.For<INetworkCollector>();
+        var repo = Substitute.For<IUsageRepository>();
+        var encryption = Substitute.For<IEncryptionService>();
+        var dnsCache = Substitute.For<IDnsResolverCache>();
+        var notifications = Substitute.For<INotificationService>();
+        var logger = Substitute.For<IAppLogger>();
+        var focus = new FocusSessionManager(clock, notifications);
+
+        await using var coordinator = new TrackingCoordinator(
+            clock, procMonitor, fgMonitor, idleProvider, sysState,
+            resourceSampler, gpuSampler, netCollector, repo, encryption, dnsCache, notifications, logger, focus,
+            new AppSettings { SamplingIntervalSeconds = 60, NotificationsEnabled = false });
+
+        await coordinator.StartAsync(TestContext.Current.CancellationToken);
+
+        for (var i = 1; i <= 7; i++)
+        {
+            now = t0.AddSeconds(i * 5);
+            coordinator.ProcessTickForTests(now);
+        }
+
+        cpuToReport = 95.0;
+        now = t0.AddSeconds(40);
+        coordinator.ProcessTickForTests(now);
+
+        notifications.DidNotReceive().ShowNotification(
+            Arg.Any<string>(),
+            Arg.Any<string>(),
+            Arg.Any<NotificationSeverity>());
+    }
 }

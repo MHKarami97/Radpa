@@ -37,6 +37,7 @@ public sealed record AppSettings
     public string? ProtectedEncryptionKeyBase64 { get; init; }
     public bool StartWithWindows { get; init; }
     public bool MinimizeToTray { get; init; } = true;
+    public bool NotificationsEnabled { get; init; } = true;
     public string? SkippedUpdateVersion { get; init; }
     public string? LastUpdateETag { get; init; }
     public DateTimeOffset? LastUpdateCheckUtc { get; init; }
