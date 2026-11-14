@@ -12,6 +12,7 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <InvariantGlobalization>true</InvariantGlobalization>
     <DebugType>embedded</DebugType>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
     <PublishSingleFile>true</PublishSingleFile>

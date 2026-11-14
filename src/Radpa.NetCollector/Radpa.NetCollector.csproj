@@ -10,6 +10,7 @@
     <IsAotCompatible>false</IsAotCompatible>
     <InvariantGlobalization>true</InvariantGlobalization>
     <DebugType>embedded</DebugType>
+    <ShouldBeValidatedAsExecutableReference>false</ShouldBeValidatedAsExecutableReference>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
     <PublishSingleFile>true</PublishSingleFile>
