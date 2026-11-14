@@ -56,7 +56,7 @@ public sealed class WindowsElevationService : IElevationService
         _logger = logger;
     }
 
-    public string HelperExecutablePath => ResolveHelperPath() ?? Path.Combine(AppContext.BaseDirectory, "Radpa.NetCollector.exe");
+    public static string HelperExecutablePath => ResolveHelperPath() ?? Path.Combine(AppContext.BaseDirectory, "Radpa.NetCollector.exe");
 
     public bool IsHelperAvailable => ResolveHelperPath() is not null;
 

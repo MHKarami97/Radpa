@@ -46,7 +46,7 @@ public static class StoragePathResolver
 [JsonSerializable(typeof(AppSettings))]
 public partial class SettingsJsonContext : JsonSerializerContext;
 
-public sealed class JsonSettingsStore : ISettingsStore
+public sealed class JsonSettingsStore : ISettingsStore, IDisposable
 {
     private readonly string _settingsPath;
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -104,5 +104,10 @@ public sealed class JsonSettingsStore : ISettingsStore
         {
             _gate.Release();
         }
+    }
+
+    public void Dispose()
+    {
+        _gate.Dispose();
     }
 }

@@ -8,7 +8,7 @@ namespace Radpa.Infrastructure.Persistence;
 /// <summary>
 /// Hand-written parameterized ADO.NET SQLite repository using WAL mode and batched transactions.
 /// </summary>
-public sealed class SqliteUsageRepository : IUsageRepository
+public sealed class SqliteUsageRepository : IUsageRepository, IDisposable
 {
     private readonly string _dbPath;
     private readonly string _connectionString;
@@ -506,6 +506,11 @@ public sealed class SqliteUsageRepository : IUsageRepository
         pragma.CommandText = "PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;";
         await pragma.ExecuteNonQueryAsync(cancellationToken);
         return conn;
+    }
+
+    public void Dispose()
+    {
+        _writeGate.Dispose();
     }
 
     private static async Task<int> DeleteOlderAsync(

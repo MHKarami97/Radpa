@@ -113,7 +113,7 @@ public static class SqliteSchemaMigrator
         await using var cmd = conn.CreateCommand();
         cmd.CommandText = "SELECT COALESCE(MAX(version), 0) FROM schema_version;";
         var result = await cmd.ExecuteScalarAsync(ct);
-        return Convert.ToInt32(result);
+        return Convert.ToInt32(result, CultureInfo.InvariantCulture);
     }
 
     private static async Task ExecuteNonQueryAsync(

@@ -10,7 +10,7 @@ namespace Radpa.Infrastructure.Collectors;
 /// <summary>
 /// Tracks Windows process lifetimes using Toolhelp32 discovery + event-driven RegisterWaitForSingleObject exit callbacks.
 /// </summary>
-public sealed unsafe class WindowsProcessMonitor : IProcessMonitor
+public sealed class WindowsProcessMonitor : IProcessMonitor
 {
     private readonly IClock _clock;
     private readonly IAppLogger _logger;
@@ -83,7 +83,7 @@ public sealed unsafe class WindowsProcessMonitor : IProcessMonitor
         }
     }
 
-    private void ScanProcesses(bool raiseStartedEvents)
+    private unsafe void ScanProcesses(bool raiseStartedEvents)
     {
         var snapshot = Kernel32Interop.CreateToolhelp32Snapshot(Kernel32Interop.Th32csSnapProcess, 0);
         if (snapshot == -1 || snapshot == 0)
@@ -172,7 +172,7 @@ public sealed unsafe class WindowsProcessMonitor : IProcessMonitor
         }
     }
 
-    internal static string? QueryImagePath(nint processHandle)
+    internal static unsafe string? QueryImagePath(nint processHandle)
     {
         Span<char> buffer = stackalloc char[512];
         var len = (uint)buffer.Length;
@@ -187,7 +187,7 @@ public sealed unsafe class WindowsProcessMonitor : IProcessMonitor
         return null;
     }
 
-    private static string? QueryPackageFamilyName(nint processHandle)
+    private static unsafe string? QueryPackageFamilyName(nint processHandle)
     {
         uint len = 0;
         var res = Kernel32Interop.GetPackageFamilyName(processHandle, ref len, null);
@@ -243,7 +243,7 @@ public sealed unsafe class WindowsProcessMonitor : IProcessMonitor
         public int Pid { get; } = pid;
         public ProcessInfo Info { get; } = info;
 
-        public void ArmExitWait()
+        public unsafe void ArmExitWait()
         {
             _selfHandle = GCHandle.Alloc(this);
             if (!Kernel32Interop.RegisterWaitForSingleObject(
