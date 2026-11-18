@@ -312,6 +312,32 @@ public sealed class TrackingCoordinator : IAsyncDisposable
             {
                 _foregroundPid = currentFg.Value.ProcessId;
                 _foregroundTitle = _settings.RecordWindowTitles ? currentFg.Value.WindowTitle : null;
+
+                if (!_processes.ContainsKey(_foregroundPid))
+                {
+                    var exePath = currentFg.Value.ExecutablePath;
+                    if (string.IsNullOrWhiteSpace(exePath))
+                    {
+                        try
+                        {
+                            using var p = System.Diagnostics.Process.GetProcessById(_foregroundPid);
+                            exePath = p.MainModule?.FileName ?? p.ProcessName;
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(exePath))
+                    {
+                        RegisterProcessLocked(new ProcessInfo(
+                            _foregroundPid,
+                            exePath,
+                            null,
+                            Path.GetFileNameWithoutExtension(exePath),
+                            currentFg.Value.ObservedUtc));
+                    }
+                }
             }
 
             _pidScratch.Clear();
@@ -516,9 +542,30 @@ public sealed class TrackingCoordinator : IAsyncDisposable
             _foregroundPid = info.ProcessId;
             _foregroundTitle = _settings.RecordWindowTitles ? info.WindowTitle : null;
 
-            if (!_processes.ContainsKey(info.ProcessId) && !string.IsNullOrWhiteSpace(info.ExecutablePath))
+            if (!_processes.ContainsKey(info.ProcessId))
             {
-                RegisterProcessLocked(new ProcessInfo(info.ProcessId, info.ExecutablePath, null, null, info.ObservedUtc));
+                var exePath = info.ExecutablePath;
+                if (string.IsNullOrWhiteSpace(exePath))
+                {
+                    try
+                    {
+                        using var p = System.Diagnostics.Process.GetProcessById(info.ProcessId);
+                        exePath = p.MainModule?.FileName ?? p.ProcessName;
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(exePath))
+                {
+                    RegisterProcessLocked(new ProcessInfo(
+                        info.ProcessId,
+                        exePath,
+                        null,
+                        Path.GetFileNameWithoutExtension(exePath),
+                        info.ObservedUtc));
+                }
             }
         }
     }

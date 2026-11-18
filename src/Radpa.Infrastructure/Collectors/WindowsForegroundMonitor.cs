@@ -154,6 +154,18 @@ public sealed unsafe class WindowsForegroundMonitor : IForegroundMonitor
             }
         }
 
+        if (string.IsNullOrWhiteSpace(exePath))
+        {
+            try
+            {
+                using var p = System.Diagnostics.Process.GetProcessById((int)pid);
+                exePath = p.MainModule?.FileName ?? p.ProcessName;
+            }
+            catch
+            {
+            }
+        }
+
         return new ForegroundAppInfo((int)pid, exePath, title, _clock.UtcNow);
     }
 

@@ -166,8 +166,18 @@ internal static class Program
         using var root = new CompositionRoot().AsSyncDisposable();
         var settings = root.Instance.InitializeStorageAsync(CancellationToken.None).GetAwaiter().GetResult();
         var vm = root.Instance.BuildMainWindowViewModel(settings);
+        using var exitCts = new CancellationTokenSource();
+        MainWindow? mainWindow = null;
 
-        return AppBuilder.Configure<App>()
+        var wakeTask = uiGuard.WaitForWakeSignalAsync(() =>
+        {
+            if (mainWindow is not null)
+            {
+                global::Avalonia.Threading.Dispatcher.UIThread.Post(() => mainWindow.RestoreFromTray());
+            }
+        }, exitCts.Token);
+
+        var exitCode = AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .AfterSetup(builder =>
             {
@@ -176,12 +186,24 @@ internal static class Program
                     app.WindowFactory = () =>
                     {
                         var win = new MainWindow(vm);
+                        mainWindow = win;
                         _ = vm.CheckForUpdatesAsync(force: false);
                         return win;
                     };
                 }
             })
             .StartWithClassicDesktopLifetime(args);
+
+        exitCts.Cancel();
+        try
+        {
+            wakeTask.GetAwaiter().GetResult();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+
+        return exitCode;
     }
 
     private static int RunSingleProcessUi(string[] args)

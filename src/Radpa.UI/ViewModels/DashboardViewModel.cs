@@ -411,8 +411,11 @@ public sealed partial class DashboardViewModel : ObservableObject
         var key = app.AppKey.Value;
         return name.Equals("Radpa", StringComparison.OrdinalIgnoreCase)
             || name.StartsWith("Radpa.", StringComparison.OrdinalIgnoreCase)
+            || name.StartsWith("Radpa-", StringComparison.OrdinalIgnoreCase)
             || path.EndsWith("Radpa.exe", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("Radpa-win-", StringComparison.OrdinalIgnoreCase)
             || path.EndsWith("Radpa.NetCollector.exe", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("Radpa.NetCollector-win-", StringComparison.OrdinalIgnoreCase)
             || key.Contains("radpa", StringComparison.OrdinalIgnoreCase);
     }
 

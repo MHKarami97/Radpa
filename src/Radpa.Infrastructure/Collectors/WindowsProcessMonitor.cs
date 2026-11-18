@@ -103,10 +103,17 @@ public sealed class WindowsProcessMonitor : IProcessMonitor
                 return;
             }
 
+            var alivePids = new HashSet<int>();
             do
             {
                 var pid = (int)entry.Th32ProcessId;
-                if (pid <= 4 || _tracked.ContainsKey(pid))
+                if (pid <= 4)
+                {
+                    continue;
+                }
+
+                alivePids.Add(pid);
+                if (_tracked.ContainsKey(pid))
                 {
                     continue;
                 }
@@ -114,6 +121,14 @@ public sealed class WindowsProcessMonitor : IProcessMonitor
                 TryTrackProcess(pid, raiseStartedEvents);
             }
             while (Kernel32Interop.Process32NextW(snapshot, ref entry));
+
+            foreach (var trackedPid in _tracked.Keys)
+            {
+                if (!alivePids.Contains(trackedPid))
+                {
+                    NotifyExited(trackedPid);
+                }
+            }
         }
         finally
         {
@@ -127,6 +142,15 @@ public sealed class WindowsProcessMonitor : IProcessMonitor
             Kernel32Interop.ProcessQueryLimitedInformation | Kernel32Interop.Synchronize,
             false,
             (uint)pid);
+
+        var canWait = handle != 0;
+        if (handle == 0)
+        {
+            handle = Kernel32Interop.OpenProcess(
+                Kernel32Interop.ProcessQueryLimitedInformation,
+                false,
+                (uint)pid);
+        }
 
         if (handle == 0)
         {
@@ -165,7 +189,10 @@ public sealed class WindowsProcessMonitor : IProcessMonitor
             return;
         }
 
-        tracked.ArmExitWait();
+        if (canWait)
+        {
+            tracked.ArmExitWait();
+        }
         if (raiseStartedEvents)
         {
             ProcessStarted?.Invoke(this, info);
